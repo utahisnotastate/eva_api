@@ -238,6 +238,7 @@ class FormFieldOptionSerializer(WritableNestedModelSerializer):
 
 
 class FormFieldSerializer(WritableNestedModelSerializer):
+    field_options = FormFieldOptionSerializer(many=True)
 
     class Meta:
         model = FormField
@@ -245,6 +246,7 @@ class FormFieldSerializer(WritableNestedModelSerializer):
 
 
 class FormSerializer(WritableNestedModelSerializer):
+    form_fields = FormFieldSerializer(many=True)
 
     class Meta:
         model = Form

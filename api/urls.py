@@ -11,6 +11,7 @@ class NestedDefaultRouter(NestedRouterMixin, routers.DefaultRouter):
 router = NestedDefaultRouter()
 appointments = router.register(r'appointments', views.AppointmentsViewSet)
 forms = router.register(r'forms', views.FormViewSet)
+# forms.register(r'formfields', views.FormFieldViewSet, basename='form-fields', parents_query_lookups=['form']).register(r'options', views.FormFieldOptionViewSet, basename='form-field-options', parents_query_lookups=['form_field_id', 'form_field'])
 forms.register(r'formfields', views.FormFieldViewSet, basename='form-fields', parents_query_lookups=['form']).register(r'options', views.FormFieldOptionViewSet, basename='form-field-options', parents_query_lookups=['form_field_id', 'form_field'])
 # appointments.register(r'today', views.TodaysAppointmentsViewSet, basename='todays-appointments', parents_query_lookups=['appointment'])
 appointments.register(r'vitals', views.VitalViewSet, basename='appointment-vitals', parents_query_lookups=['appointment'])

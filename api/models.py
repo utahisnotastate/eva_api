@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 
 # Create your models here.
@@ -77,8 +78,10 @@ class Appointment(models.Model):
 
 class AppointmentFinding(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_findings')
-    form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='appointment_findings_fields')
-    value = models.TextField()
+    form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='appointment_form_findings')
+    findings = JSONField(blank=True, null=True)
+    # form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='appointment_findings_fields')
+    # value = models.TextField()
 
 
 class Vital(models.Model):
@@ -113,6 +116,7 @@ class Form(models.Model):
     form_type = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
     active = models.BooleanField(default=False)
+    form = JSONField(blank=True, null=True)
 
 
 class ComplaintTherapeuticAttempt(models.Model):
@@ -159,6 +163,7 @@ class Assessment(models.Model):
     icd_code = models.CharField(max_length=10, blank=True, null=True)
     icd_description = models.CharField(max_length=100, blank=True, null=True)
     other_assessment = models.TextField(blank=True, null=True)
+    based_on = JSONField(blank=True, null=True)
 
 
 class AppointmentPlan(models.Model):

@@ -10,17 +10,22 @@ class NestedDefaultRouter(NestedRouterMixin, routers.DefaultRouter):
 
 router = NestedDefaultRouter()
 appointments = router.register(r'appointments', views.AppointmentsViewSet)
+
 forms = router.register(r'forms', views.FormViewSet)
+activeforms = router.register(r'activeforms', views.ActiveFormsViewSet, basename='activeforms')
+activephysicalexamforms = router.register(r'activephysicalexamforms', views.ActivePhysicalExamFormsViewSet, basename='active-physical-exam-forms')
+activerosforms = router.register(r'activerosforms', views.ActiveROSFormsViewSet, basename='active-ros-forms')
 # forms.register(r'formfields', views.FormFieldViewSet, basename='form-fields', parents_query_lookups=['form']).register(r'options', views.FormFieldOptionViewSet, basename='form-field-options', parents_query_lookups=['form_field_id', 'form_field'])
-forms.register(r'formfields', views.FormFieldViewSet, basename='form-fields', parents_query_lookups=['form']).register(r'options', views.FormFieldOptionViewSet, basename='form-field-options', parents_query_lookups=['form_field_id', 'form_field'])
+#forms.register(r'formfields', views.FormFieldViewSet, basename='form-fields', parents_query_lookups=['form']).register(r'options', views.FormFieldOptionViewSet, basename='form-field-options', parents_query_lookups=['form_field_id', 'form_field'])
 # appointments.register(r'today', views.TodaysAppointmentsViewSet, basename='todays-appointments', parents_query_lookups=['appointment'])
 appointments.register(r'vitals', views.VitalViewSet, basename='appointment-vitals', parents_query_lookups=['appointment'])
 appointments.register(r'complaints', views.ComplaintViewSet, basename='appointment-complaints', parents_query_lookups=['appointment'])
+appointments.register(r'forms', views.AppointmentFormViewSet, basename='appointment-forms', parents_query_lookups=['appointment']).register(r'findings', views.AppointmentFindingViewSet, basename='appointment-findings', parents_query_lookups=['appointment', 'id'])
 appointments.register(r'assessments', views.AssessmentViewSet, basename='appointment-assessments', parents_query_lookups=['appointment'])
 appointments.register(r'findings', views.AppointmentFindingViewSet, basename='appointment-findings', parents_query_lookups=['appointment'])
 appointments.register(r'summary', views.SummaryViewSet, basename='appointment-vitals', parents_query_lookups=['appointment'])
 
-appointmentstoday = router.register(r'appointmentstoday', views.TodaysAppointmentsViewSet)
+appointmentstoday = router.register(r'appointmentstoday', views.TodaysAppointmentsViewSet, basename='appointments-today')
 
 patients = router.register(r'patients', views.BasicPatientsViewSet)
 patients.register(r'demographics', views.PatientDemographicsViewSet, basename='patient-demographics', parents_query_lookups=['patient'])

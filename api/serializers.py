@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from drf_writable_nested.serializers import WritableNestedModelSerializer
-from .models import Appointment, AppointmentFinding , LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
+from .models import Appointment, AppointmentFinding, AppointmentForm, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
 
 
 # Patient Serializers
@@ -220,6 +220,18 @@ class AppointmentSummarySerializer(serializers.ModelSerializer):
         model = Summary
         fields = 'summary'
 
+class AppointmentFormSerializer(serializers.ModelSerializer):
+    #title = serializers.SerializerMethodField('get_form_title')
+
+    class Meta:
+        model = AppointmentForm
+        fields = '__all__'
+
+    #def get_form_title(self, appointmentform):
+        #title = appointmentform.form.title
+       # return title
+
+
 class AppointmentFindingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentFinding
@@ -246,7 +258,7 @@ class FormFieldSerializer(WritableNestedModelSerializer):
 
 
 class FormSerializer(WritableNestedModelSerializer):
-    form_fields = FormFieldSerializer(many=True)
+    #form_fields = FormFieldSerializer(many=True)
 
     class Meta:
         model = Form

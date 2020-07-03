@@ -85,9 +85,9 @@ WSGI_APPLICATION = 'eva_api.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'evatwo',
-        'USER': 'djangodev',
-        'PASSWORD': 'password',
+        'NAME': 'evafive',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
         'PORT': '5433',
     }

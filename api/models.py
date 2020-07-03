@@ -83,6 +83,13 @@ class AppointmentFinding(models.Model):
     # form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='appointment_findings_fields')
     # value = models.TextField()
 
+class AppointmentForm(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_forms')
+    # form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='appointment_forms')
+    title = models.CharField(max_length=100)
+    form_type = models.CharField(max_length=100)
+    form = JSONField(blank=True, null=True)
+
 
 class Vital(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='vitals')

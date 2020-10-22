@@ -90,7 +90,7 @@ class AppointmentForm(models.Model):
     form_type = models.CharField(max_length=100)
     form = JSONField(blank=True, null=True)
 
-
+# I dont think we use this formfield anymore
 class Vital(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='vitals')
     systolic_pressure = models.PositiveIntegerField(blank=True, null=True)
@@ -103,13 +103,14 @@ class Vital(models.Model):
     weight_unit_choices = [('pounds', 'Pounds'), ('kilograms', 'Kilograms')]
     weight_unit = models.CharField(choices=weight_unit_choices, max_length=30, blank=True, null=True)
 
-
+# I dont think we use this formfield anymore
 class FormFieldOption(models.Model):
     form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='field_options')
     label = models.CharField(max_length=50, null=True, blank=True)
     name = models.CharField(max_length=50, null=True, blank=True)
 
 
+# I dont think we use this formfield anymore
 class FormField(models.Model):
     form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='form_fields')
     position = models.SmallIntegerField(null=True, blank=True)

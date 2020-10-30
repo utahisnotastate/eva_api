@@ -164,7 +164,7 @@ class BasicAppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ('id', 'patient', 'patient_display_name', 'provider', 'provider_display_name', 'type', 'status', 'start', 'end', 'scheduled_on')
+        fields = ('id', 'patient', 'patient_display_name', 'provider', 'provider_display_name', 'type', 'status', 'start', 'end', 'scheduled_on', 'appointment_assessment')
 
     def get_patient_display_name(self, appointment):
         patient_display_name = appointment.patient.display_name
@@ -185,7 +185,7 @@ class AppointmentVitalsSerializer(serializers.ModelSerializer):
 class AppointmentComplaintSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
-        fields = ('id', 'appointment', 'complaint_name', 'complaint_description', 'location', 'onset_number',  'patient_belief_caused_by', 'patient_therapeutic_attempts', 'patients_guess', 'other_notes')
+        fields = ('id', 'appointment', 'complaint_name', 'complaint_description', 'location', 'onset_number',  'patient_belief_caused_by', 'patient_therapeutic_attempts', 'patients_guess', 'other_notes', 'appointment_complaints')
 
 class ComplaintTherapeuticAttemptSerializer(serializers.ModelSerializer):
     class Meta:
@@ -219,6 +219,7 @@ class AppointmentSummarySerializer(serializers.ModelSerializer):
     class Meta:
         model = Summary
         fields = 'summary'
+
 
 class AppointmentFormSerializer(serializers.ModelSerializer):
     #title = serializers.SerializerMethodField('get_form_title')

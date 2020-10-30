@@ -68,6 +68,8 @@ class Appointment(models.Model):
     # rescheduledfrom = models.IntegerField(default=0)
     end = models.DateTimeField()
     scheduled_on = models.DateTimeField(auto_now_add=True)
+    appointment_assessment = JSONField(blank=True, null=True)
+    appointment_plan = JSONField(blank=True, null=True)
 
 
 # class AppointmentAssessment(models.Model):
@@ -139,13 +141,17 @@ class ComplaintTherapeuticAttempt(models.Model):
     helped = models.NullBooleanField(choices=helped_choices, default=None)
 
 
+def defaultcomplaint():
+    return {"customformfields": []}
+
+
 class Complaint(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='complaints')
     # icd_code = models.CharField(max_length=10, blank=True, null=True)
     # icd_description = models.CharField(max_length=100, blank=True, null=True)
     complaint_name = models.CharField(max_length=100, blank=True, null=True)
     complaint_description = models.TextField(blank=True, null=True)
-    onset_number = models.SmallIntegerField()
+    onset_number = models.SmallIntegerField(blank=True, null=True)
     onset_unit_choices = [('day', 'Day(s)'), ('weeks', 'Week(s)'), ('months', 'Month(s)'), ('years', 'Years')]
     onset_unit = models.CharField(choices=onset_unit_choices, max_length=40, blank=True, null=True)
     onset_doesnt_remember = models.BooleanField(default=False)
@@ -157,6 +163,7 @@ class Complaint(models.Model):
     patient_therapeutic_attempts = models.TextField(blank=True, null=True)
     patients_guess = models.TextField(blank=True, null=True)
     other_notes = models.TextField(blank=True, null=True)
+    appointment_complaints = JSONField(blank=True, null=True)
 
 
 class AssessmentRelatedTo(models.Model):

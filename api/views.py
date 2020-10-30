@@ -40,10 +40,14 @@ class AppointmentsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = BasicAppointmentSerializer
 
-
+#queryset = AppointmentForm.objects.filter(form__values__contains={'checked': True})
+#serializer_class = AppointmentFindingsSerializer
+#queryset = AppointmentForm.objects.filter(form__customformfields__contains=[{'checked': True}])
+#queryset = AppointmentForm.objects.filter(form__customformfields__contains=[{'checked': True}])
+#queryset = AppointmentForm.objects.filter(form__customformfields__contains={'checked': True})
 class AppointmentFindingViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = AppointmentForm.objects.filter(form__values__contains={'checked': True})
-    serializer_class = AppointmentFindingsSerializer
+    queryset = AppointmentForm.objects.filter(form__customformfields__contains=[{'checked': True}])
+    serializer_class = AppointmentFormSerializer
 
 class TodaysAppointmentsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Appointment.objects.filter(start__date=datetime.date.today())

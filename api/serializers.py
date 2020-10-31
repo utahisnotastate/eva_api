@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from drf_writable_nested.serializers import WritableNestedModelSerializer
-from .models import Appointment, AppointmentFinding, AppointmentForm, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
+from .models import Appointment, PatientDiagnosis,PatientMedicationPrescription ,PatientMedicationHistory, PatientMedicationChanges, AppointmentFinding, AppointmentForm, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
 
 
 # Patient Serializers
@@ -23,18 +23,53 @@ class BasicProviderSerializer(serializers.ModelSerializer):
         fields = ('id', 'display_name')
 
 
-class PatientMedicationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PatientMedication
-        fields = ('id', 'patient', 'last_written_on', 'prescribed_by', 'diagnosis', 'name', 'date_started', 'date_stopped', 'stoppage_reason', 'dosage', 'dosage_unit', 'frequency')
-
-
 
 class PatientInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Insurance
         fields = ('id', 'patient', 'insurance_name', 'tradingPartnerId', 'group_ID', 'bin_number', 'pcn', 'type', 'member_id','relationship_code', 'active', 'date_effective', 'date_terminated', 'copay_amount')
 
+
+class PatientMedicationPrescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientMedicationPrescription
+        fields = "__all__"
+
+#medication_diagnoses = PatientDiagnosisSerializer(many=True)
+
+
+class PatientMedicationPrescriptionHistorySerializer(WritableNestedModelSerializer):
+    prescriptions = PatientMedicationPrescriptionSerializer(many=True)
+    class Meta:
+        model = PatientMedicationHistory
+        fields = "__all__"
+
+
+class BasicMedicationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientMedication
+        fields = ('id', 'strength', 'frequency','reason_stopped', 'name','active', 'requires_authorization', 'prescribed_by')
+
+
+class PatientDiagnosisSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientDiagnosis
+        fields = '__all__'
+
+
+class PatientMedicationSerializer(WritableNestedModelSerializer):
+    medication_diagnoses = PatientDiagnosisSerializer(many=True)
+    prescriptions = PatientMedicationPrescriptionSerializer(many=True)
+    class Meta:
+        model = PatientMedication
+        #fields = ('id', 'patient', 'last_written_on', 'prescribed_by', 'diagnosis', 'name', 'date_started', 'date_stopped', 'stoppage_reason', 'dosage', 'dosage_unit', 'frequency')
+        fields = '__all__'
+
+
+class PatientMedicationChangesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientMedicationChanges
+        fields = '__all__'
 
 class PatientDemographicsSerializer(serializers.ModelSerializer):
      #patient = BasicPatientSerializer()

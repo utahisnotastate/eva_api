@@ -248,15 +248,20 @@ class PatientMedication(models.Model):
     #refills_given = models.SmallIntegerField(default=0)
     requires_authorization = models.BooleanField(null=True)
     name = models.CharField(max_length=200)
+    active = models.BooleanField(default=True)
     #dosage = models.PositiveSmallIntegerField()
     strength = models.CharField(max_length=100, blank=True)
     #dosage_unit = models.CharField(max_length=100)
     frequency = models.CharField(max_length=400, blank=True)
+    reason_stopped = models.TextField(blank=True)
     #date_started = models.DateField(blank=True, null=True)
     #date_stopped = models.DateField(blank=True, null=True)
     #stoppage_reason = models.TextField(blank=True, null=True)
     # diagnosis = models.TextField()
     #diagnosis = models.ManyToManyField(PatientDiagnosis, blank=True)
+
+    def __str__(self):
+        return '%s %s' % (self.name, self.strength)
 
 
 
@@ -270,7 +275,11 @@ class PatientDiagnosis(models.Model):
     status = models.CharField(max_length=100, blank=True)
     diagnosed_on = models.DateField(blank=True, null=True)
     diagnosed_by = models.CharField(max_length=200, blank=True)
-    medications = models.ManyToManyField(PatientMedication, blank=True, related_name="diagnoses_medications")
+    medications = models.ManyToManyField(PatientMedication, blank=True, related_name="medication_diagnoses")
+
+    def __str__(self):
+        return '%s %s' % (self.diagnosis_icd_code, self.diagnosis_description)
+
 
 class PatientRadiology(models.Model):
     test = models.CharField(max_length=200, blank=True)
@@ -281,7 +290,7 @@ class PatientRadiology(models.Model):
 
 class PatientMedicationPrescription(models.Model):
     medication = models.ForeignKey(PatientMedication, on_delete=models.CASCADE,
-                                   related_name='patient_medication_prescriptions_log')
+                                   related_name='prescriptions')
     strength = models.CharField(max_length=200, blank=True)
     frequency = models.CharField(max_length=200, blank=True)
     type = models.CharField(max_length=200, blank=True)

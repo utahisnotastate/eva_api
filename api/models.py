@@ -71,6 +71,15 @@ class Appointment(models.Model):
     appointment_assessment = JSONField(blank=True, null=True)
     appointment_plan = JSONField(blank=True, null=True)
 
+#class AppointmentClinicalResult(models.Model):
+    #appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    #complaints = JSONField(blank=True, null=True)
+    #findings = JSONField(blank=True, null=True)
+    #assessment = JSONField(blank=True, null=True)
+    #plan = JSONField(blank=True, null=True)
+
+
+
 
 # class AppointmentAssessment(models.Model):
 # appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='assessments')
@@ -224,41 +233,92 @@ class PatientDocumentation(models.Model):
     uploaded_on = models.DateTimeField(auto_now_add=True)
 
 
-class PatientDiagnosis(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_diagnoses')
-    diagnosis_icd_code = models.CharField(max_length=200, blank=True, null=True)
-    diagnosis_description = models.CharField(max_length=200, blank=True, null=True)
-    diagnosis_status_choices = [('active', 'Active'), ('inactive', 'Inactive')]
-    diagnosis_status = models.CharField(choices=diagnosis_status_choices, max_length=20, blank=True, null=True)
-    diagnosed_on = models.DateField(blank=True, null=True)
-    diagnosed_by = models.CharField(max_length=200, blank=True, null=True)
+
+
+
 
 
 class PatientMedication(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_medications')
-    diagnosis = models.ForeignKey(PatientDiagnosis, on_delete=models.CASCADE,
-                                  related_name='patient_medications_for_diagnosis', blank=True, null=True)
-    prescribed_by = models.CharField(max_length=300)
-    last_written_on = models.DateField(blank=True, null=True)
-    refills_given = models.SmallIntegerField(default=0)
+    #diagnosis = models.ForeignKey(PatientDiagnosis, on_delete=models.CASCADE,
+    #                             related_name='patient_medications_for_diagnosis', blank=True, null=True)
+    #prescribed_by = models.CharField(max_length=300, blank=True, null=True)
+    prescribed_by = models.CharField(max_length=300, blank=True)
+    #last_written_on = models.DateField(blank=True, null=True)
+    #refills_given = models.SmallIntegerField(default=0)
     requires_authorization = models.BooleanField(null=True)
     name = models.CharField(max_length=200)
-    dosage = models.PositiveSmallIntegerField()
-    dosage_unit = models.CharField(max_length=100)
-    frequency = models.CharField(max_length=400)
-    date_started = models.DateField(blank=True, null=True)
-    date_stopped = models.DateField(blank=True, null=True)
-    stoppage_reason = models.TextField(blank=True, null=True)
+    #dosage = models.PositiveSmallIntegerField()
+    strength = models.CharField(max_length=100, blank=True)
+    #dosage_unit = models.CharField(max_length=100)
+    frequency = models.CharField(max_length=400, blank=True)
+    #date_started = models.DateField(blank=True, null=True)
+    #date_stopped = models.DateField(blank=True, null=True)
+    #stoppage_reason = models.TextField(blank=True, null=True)
     # diagnosis = models.TextField()
+    #diagnosis = models.ManyToManyField(PatientDiagnosis, blank=True)
+
+
+
+
+class PatientDiagnosis(models.Model):
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_diagnoses')
+    diagnosis_icd_code = models.CharField(max_length=200, blank=True, null=True)
+    diagnosis_description = models.CharField(max_length=200, blank=True, null=True)
+    #diagnosis_status_choices = [('active', 'Active'), ('inactive', 'Inactive')]
+    #diagnosis_status = models.CharField(choices=diagnosis_status_choices, max_length=20, blank=True, null=True)
+    status = models.CharField(max_length=100, blank=True)
+    diagnosed_on = models.DateField(blank=True, null=True)
+    diagnosed_by = models.CharField(max_length=200, blank=True)
+    medications = models.ManyToManyField(PatientMedication, blank=True, related_name="diagnoses_medications")
+
+class PatientRadiology(models.Model):
+    test = models.CharField(max_length=200, blank=True)
+    findings = models.TextField(blank=True)
+    diagnosis = models.ManyToManyField(PatientDiagnosis, blank=True, related_name='radiology_history')
+
+
+
+class PatientMedicationPrescription(models.Model):
+    medication = models.ForeignKey(PatientMedication, on_delete=models.CASCADE,
+                                   related_name='patient_medication_prescriptions_log')
+    strength = models.CharField(max_length=200, blank=True)
+    frequency = models.CharField(max_length=200, blank=True)
+    type = models.CharField(max_length=200, blank=True)
+    refills = models.SmallIntegerField(blank=True, null=True)
+    written_on = models.DateField(auto_now_add=True)
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='medications_written_by')
+
+
+
+class PatientMedicationChanges(models.Model):
+    medication = models.ForeignKey(PatientMedication, on_delete=models.CASCADE,
+                                   related_name='patient_medication_changes')
+    new_strength = models.CharField(max_length=200, blank=True)
+    new_frequency = models.CharField(max_length=200, blank=True)
+    # can be changed dosage, stopped medication
+    type = models.CharField(max_length=200, blank=True)
+    reason_for_change = models.TextField(blank=True, null=True)
+    date_changed = models.DateField(blank=True, null=True)
+
+
+
+class PatientMedicationHistory(models.Model):
+    medication = models.ForeignKey(PatientMedication, on_delete=models.CASCADE, related_name='patient_medication_history')
+    type = models.CharField(max_length=100, blank=True)
+    new_strength = models.CharField(max_length=100, blank=True)
+    new_frequency = models.CharField(max_length=100, blank=True)
+    prescription_type = models.CharField(max_length=100, blank=True)
+    refills_given = models.SmallIntegerField(blank=True, null=True)
 
 
 class PatientMedicationAuthorization(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_medication_authorizations')
+    #patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_medication_authorizations')
     medication = models.ForeignKey(PatientMedication, on_delete=models.CASCADE,
                                    related_name='medication_authorizations')
     authorized = models.BooleanField()
     authorization_number = models.CharField(max_length=500)
-    contact_method = models.TextField()
+    contact_method = models.TextField(blank=True)
     authorized_on = models.DateField()
     date_of_next_authorization = models.DateField(blank=True, null=True)
 

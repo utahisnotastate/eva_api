@@ -164,7 +164,7 @@ class BasicAppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ('id', 'patient', 'patient_display_name', 'provider', 'provider_display_name', 'type', 'status', 'start', 'end', 'scheduled_on', 'appointment_assessment')
+        fields = ('id', 'patient', 'patient_display_name', 'provider', 'provider_display_name', 'type', 'status', 'start', 'end', 'scheduled_on', 'appointment_assessment', 'appointment_plan')
 
     def get_patient_display_name(self, appointment):
         patient_display_name = appointment.patient.display_name

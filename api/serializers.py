@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from drf_writable_nested.serializers import WritableNestedModelSerializer
-from .models import Appointment, PatientDiagnosis,PatientMedicationPrescription ,PatientMedicationHistory, PatientMedicationChanges, AppointmentFinding, AppointmentForm, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
+from .models import Appointment, PatientDiagnosis, PatientMedicationPrescription, PatientMedicationAuthorization,PatientMedicationHistory, PatientMedicationChanges, AppointmentFinding, AppointmentForm, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
 
 
 # Patient Serializers
@@ -30,7 +30,7 @@ class PatientInsuranceSerializer(serializers.ModelSerializer):
         fields = ('id', 'patient', 'insurance_name', 'tradingPartnerId', 'group_ID', 'bin_number', 'pcn', 'type', 'member_id','relationship_code', 'active', 'date_effective', 'date_terminated', 'copay_amount')
 
 
-class PatientMedicationPrescriptionSerializer(serializers.ModelSerializer):
+class PatientMedicationPrescriptionSerializer(WritableNestedModelSerializer):
     class Meta:
         model = PatientMedicationPrescription
         fields = "__all__"
@@ -44,7 +44,6 @@ class PatientMedicationPrescriptionHistorySerializer(WritableNestedModelSerializ
         model = PatientMedicationHistory
         fields = "__all__"
 
-
 class BasicMedicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = PatientMedication
@@ -57,14 +56,20 @@ class PatientDiagnosisSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class PatientMedicationAuthorizationSerializer(WritableNestedModelSerializer):
+    class Meta:
+        model = PatientMedicationAuthorization
+        fields = '__all__'
+
+
 class PatientMedicationSerializer(WritableNestedModelSerializer):
     medication_diagnoses = PatientDiagnosisSerializer(many=True)
     prescriptions = PatientMedicationPrescriptionSerializer(many=True)
+    medication_authorizations = PatientMedicationAuthorizationSerializer(many=True)
     class Meta:
         model = PatientMedication
         #fields = ('id', 'patient', 'last_written_on', 'prescribed_by', 'diagnosis', 'name', 'date_started', 'date_stopped', 'stoppage_reason', 'dosage', 'dosage_unit', 'frequency')
         fields = '__all__'
-
 
 class PatientMedicationChangesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -199,7 +204,7 @@ class BasicAppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ('id', 'patient', 'patient_display_name', 'provider', 'provider_display_name', 'type', 'status', 'start', 'end', 'scheduled_on', 'appointment_assessment', 'appointment_plan')
+        fields = ('id', 'patient', 'patient_display_name', 'provider', 'provider_display_name', 'type', 'status', 'start', 'end', 'scheduled_on', 'appointment_assessment', 'appointment_plan', 'appointment_summary')
 
     def get_patient_display_name(self, appointment):
         patient_display_name = appointment.patient.display_name

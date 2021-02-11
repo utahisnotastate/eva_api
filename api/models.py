@@ -53,7 +53,22 @@ class Provider(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.title, self.last_name)
+"""
+class ClinicalQueueStep(models.Model):
+    name: models.CharField(max_length=100, default="scheduled")
+    position: models.IntegerField()
+"""
 
+def default_appointment_clinical_data():
+    clinical_data = {
+        "complaints": [],
+        "review_of_systems": [],
+        "physical_exam": [],
+        "assessments": [],
+        "plans": [],
+        "summary": ""
+    }
+    return clinical_data
 
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
@@ -63,6 +78,8 @@ class Appointment(models.Model):
     type = models.CharField(choices=type_choices, max_length=100, default=type_choices[3][1])
     status_choices = [('scheduled', 'Scheduled'), ('arrived', 'Arrived'), ('in_exam_room', 'In Exam Room'),
                       ('in_progress', 'In progress'), ('complete', 'Complete'), ('cancelled', 'Cancelled')]
+    #status = models.CharField(max_length=100, default="scheduled")
+    #clinical_data = models.JSONField(default=default_appointment_clinical_data)
     status = models.CharField(choices=status_choices, max_length=100, default=status_choices[0][1])
     start = models.DateTimeField()
     # rescheduledfrom = models.IntegerField(default=0)
@@ -70,6 +87,7 @@ class Appointment(models.Model):
     scheduled_on = models.DateTimeField(auto_now_add=True)
     appointment_assessment = JSONField(blank=True, null=True)
     appointment_plan = JSONField(blank=True, null=True)
+    appointment_summary = models.TextField(blank=True)
 
 #class AppointmentClinicalResult(models.Model):
     #appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
@@ -232,12 +250,6 @@ class PatientDocumentation(models.Model):
     description = models.TextField()
     uploaded_on = models.DateTimeField(auto_now_add=True)
 
-
-
-
-
-
-
 class PatientMedication(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_medications')
     #diagnosis = models.ForeignKey(PatientDiagnosis, on_delete=models.CASCADE,
@@ -326,9 +338,9 @@ class PatientMedicationAuthorization(models.Model):
     medication = models.ForeignKey(PatientMedication, on_delete=models.CASCADE,
                                    related_name='medication_authorizations')
     authorized = models.BooleanField()
-    authorization_number = models.CharField(max_length=500)
+    authorization_number = models.CharField(max_length=500, blank=True)
     contact_method = models.TextField(blank=True)
-    authorized_on = models.DateField()
+    authorized_on = models.DateField(blank=True, null=True)
     date_of_next_authorization = models.DateField(blank=True, null=True)
 
 

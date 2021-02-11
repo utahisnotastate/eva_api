@@ -1,9 +1,29 @@
 from rest_framework import serializers
 from drf_writable_nested.serializers import WritableNestedModelSerializer
-from .models import Appointment, PatientDiagnosis, PatientMedicationPrescription, PatientMedicationAuthorization,PatientMedicationHistory, PatientMedicationChanges, AppointmentFinding, AppointmentForm, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Vital, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan,  Summary, Form, FormField, FormFieldOption
+from .models import PracticeSettings, PracticeNews, Appointment, Allergy, PatientDiagnosis, PatientMedicationPrescription, PatientMedicationAuthorization,PatientMedicationHistory, PatientMedicationChanges, AppointmentForm, Patient, Provider, Demographics, Address, Guarantor, Insurance, ContactInformation, PatientRequest, PatientRequestUpdate, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, Form
 
 
 # Patient Serializers
+"""
+TODO Serializers:
+- Claim
+- Practice Settings
+- Practice Update
+
+"""
+"""
+
+"""
+class PracticeSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PracticeSettings
+        fields = '__all__'
+
+class PracticeNewsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PracticeNews
+        fields = '__all__'
+
 
 class BasicPatientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -23,6 +43,37 @@ class BasicProviderSerializer(serializers.ModelSerializer):
         fields = ('id', 'display_name')
 
 
+class AppointmentSerializer(WritableNestedModelSerializer):
+    patient_display_name = serializers.SerializerMethodField('get_patient_display_name')
+    provider_display_name = serializers.SerializerMethodField('get_provider_display_name')
+    clinical_data = serializers.JSONField()
+
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+
+    def get_patient_display_name(self, appointment):
+        patient_display_name = appointment.patient.display_name
+        return patient_display_name
+
+    def get_provider_display_name(self, appointment):
+        provider_display_name = appointment.provider.display_name
+        return provider_display_name
+
+
+class AppointmentFormSerializer(serializers.ModelSerializer):
+    form = serializers.JSONField()
+    class Meta:
+        model = AppointmentForm
+        fields = '__all__'
+
+class FormSerializer(WritableNestedModelSerializer):
+    form = serializers.JSONField()
+
+    class Meta:
+        model = Form
+        fields = '__all__'
+
 
 class PatientInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,9 +85,6 @@ class PatientMedicationPrescriptionSerializer(WritableNestedModelSerializer):
     class Meta:
         model = PatientMedicationPrescription
         fields = "__all__"
-
-#medication_diagnoses = PatientDiagnosisSerializer(many=True)
-
 
 class PatientMedicationPrescriptionHistorySerializer(WritableNestedModelSerializer):
     prescriptions = PatientMedicationPrescriptionSerializer(many=True)
@@ -68,7 +116,6 @@ class PatientMedicationSerializer(WritableNestedModelSerializer):
     medication_authorizations = PatientMedicationAuthorizationSerializer(many=True)
     class Meta:
         model = PatientMedication
-        #fields = ('id', 'patient', 'last_written_on', 'prescribed_by', 'diagnosis', 'name', 'date_started', 'date_stopped', 'stoppage_reason', 'dosage', 'dosage_unit', 'frequency')
         fields = '__all__'
 
 class PatientMedicationChangesSerializer(serializers.ModelSerializer):
@@ -77,8 +124,6 @@ class PatientMedicationChangesSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PatientDemographicsSerializer(serializers.ModelSerializer):
-     #patient = BasicPatientSerializer()
-
     class Meta:
         model = Demographics
         fields = ('patient', 'race', 'gender', 'marital_status', 'employment_status', 'email')
@@ -155,9 +200,13 @@ class PatientRequestsSerializer(serializers.ModelSerializer):
         model = PatientRequest
         fields = ('id', 'patient', 'type', 'status', 'request_description', 'patient_request_updates')
 
-# Allergy Serializers
 
+class AllergySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Allergy
+        fields = '__all__'
 
+"""
 class LatexAllergySerializer(serializers.ModelSerializer):
     class Meta:
         model = LatexAllergy
@@ -192,11 +241,15 @@ class InsectAllergySerializer(serializers.ModelSerializer):
     class Meta:
         model = InsectAllergies
         fields = ('patient', 'insect')
+"""
 
+# Allergy Serializers
 # Clinical Requests Serializers
 
 
 # Appointment serializers
+
+"""
 class BasicAppointmentSerializer(serializers.ModelSerializer):
     patient_display_name = serializers.SerializerMethodField('get_patient_display_name')
     provider_display_name = serializers.SerializerMethodField('get_provider_display_name')
@@ -214,25 +267,27 @@ class BasicAppointmentSerializer(serializers.ModelSerializer):
         provider_display_name = appointment.provider.display_name
         return provider_display_name
 
-
+"""
+"""
 class AppointmentVitalsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Vital
         fields = ('appointment', 'systolic_pressure', 'diastolic_pressure', 'temperature_value', 'temperature_unit', 'pulse', 'weight_value', 'weight_unit')
 
-
 class AppointmentComplaintSerializer(serializers.ModelSerializer):
     class Meta:
         model = Complaint
         fields = ('id', 'appointment', 'complaint_name', 'complaint_description', 'location', 'onset_number',  'patient_belief_caused_by', 'patient_therapeutic_attempts', 'patients_guess', 'other_notes', 'appointment_complaints')
-
 class ComplaintTherapeuticAttemptSerializer(serializers.ModelSerializer):
     class Meta:
         model: ComplaintTherapeuticAttempt
         fields = ('complaint', 'type', 'description', 'helped')
 
+"""
 
+
+"""
 class AppointmentAssessmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assessment
@@ -260,29 +315,26 @@ class AppointmentSummarySerializer(serializers.ModelSerializer):
         model = Summary
         fields = 'summary'
 
-
-class AppointmentFormSerializer(serializers.ModelSerializer):
-    #title = serializers.SerializerMethodField('get_form_title')
-
-    class Meta:
-        model = AppointmentForm
-        fields = '__all__'
-
-    #def get_form_title(self, appointmentform):
-        #title = appointmentform.form.title
-       # return title
+"""
 
 
+
+
+
+
+
+"""
 class AppointmentFindingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = AppointmentFinding
         fields = '__all__'
+"""
+
 
 
 
 # Form Serializers
-
-
+"""
 class FormFieldOptionSerializer(WritableNestedModelSerializer):
 
     class Meta:
@@ -297,11 +349,6 @@ class FormFieldSerializer(WritableNestedModelSerializer):
         model = FormField
         fields = '__all__'
 
+"""
 
-class FormSerializer(WritableNestedModelSerializer):
-    #form_fields = FormFieldSerializer(many=True)
-
-    class Meta:
-        model = Form
-        fields = '__all__'
 

@@ -1,11 +1,30 @@
 from rest_framework import generics, viewsets, filters
 import datetime
 from rest_framework_extensions.mixins import NestedViewSetMixin
-from .models import AppointmentFinding, PatientDiagnosis,PatientMedicationChanges,PatientMedicationAuthorization ,PatientMedicationPrescription , AppointmentForm,  Form, FormField, FormFieldOption, Appointment, Provider, Vital, Complaint, Insurance, Assessment, Summary, Patient, LatexAllergy, PollenAllergy, PetAllergies, DrugAllergies, FoodAllergies, InsectAllergies, Demographics, Address, Guarantor, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, PatientRequest, PatientRequestUpdate, ContactInformation, Complaint, ComplaintTherapeuticAttempt, Assessment, AssessmentRelatedTo, AppointmentPlan
-from .serializers import AppointmentFindingsSerializer,BasicMedicationSerializer,PatientMedicationChangesSerializer,PatientMedicationAuthorizationSerializer,PatientMedicationPrescriptionHistorySerializer,PatientMedicationPrescriptionSerializer, PatientDiagnosisSerializer, AppointmentFormSerializer, FormSerializer, FormFieldSerializer, BasicProviderSerializer, FormFieldOptionSerializer, CreatePatientRequestsSerializer, PatientInsuranceSerializer, LatexAllergySerializer, PollenAllergySerializer, PetAllergySerializer, DrugAllergySerializer, FoodAllergySerializer, InsectAllergySerializer, BasicAppointmentSerializer, AppointmentVitalsSerializer, PatientRequestUpdateSerializer, PatientRequestsSerializer, AppointmentComplaintSerializer, AppointmentAssessmentSerializer, AppointmentSummarySerializer,  BasicPatientSerializer, PatientDemographicsSerializer, PatientAddressSerializer, PatientGuarantorSerializer, PatientDocumentationSerializer, PatientReportsSerializer, PatientSurgicalHistorySerializer, PatientMedicationSerializer, PatientContactInformationSerializer, ComplaintTherapeuticAttemptSerializer, AssessmentRelatedToSerializer, AppointmentPlanSerializer
+from .models import PracticeSettings, PracticeNews, Provider, Appointment, AppointmentForm,  Form, Allergy, PatientDiagnosis, PatientMedicationChanges,PatientMedicationAuthorization ,PatientMedicationPrescription, Insurance, Patient, Demographics, Address, Guarantor, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, PatientRequest, PatientRequestUpdate, ContactInformation
+from .serializers import PracticeSettingsSerializer, PracticeNewsSerializer, AppointmentSerializer, BasicProviderSerializer, AppointmentSerializer, AppointmentFormSerializer, FormSerializer, AllergySerializer, BasicMedicationSerializer,PatientMedicationChangesSerializer,PatientMedicationAuthorizationSerializer, PatientMedicationPrescriptionHistorySerializer,PatientMedicationPrescriptionSerializer, PatientDiagnosisSerializer, CreatePatientRequestsSerializer, PatientInsuranceSerializer, PatientRequestUpdateSerializer, PatientRequestsSerializer,  BasicPatientSerializer, PatientDemographicsSerializer, PatientAddressSerializer, PatientGuarantorSerializer, PatientDocumentationSerializer, PatientReportsSerializer, PatientSurgicalHistorySerializer, PatientMedicationSerializer, PatientContactInformationSerializer
 from django.shortcuts import render
 
 # Create your views here.
+class PracticeSettingsViewSet(viewsets.ModelViewSet):
+    queryset = PracticeSettings.objects.all()
+    serializer_class = PracticeSettingsSerializer
+
+class PracticeNewsViewSet(viewsets.ModelViewSet):
+    queryset = PracticeNews.objects.all()
+    serializer_class = PracticeNewsSerializer
+
+class BasicProvidersViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Provider.objects.all()
+    serializer_class = BasicProviderSerializer
+
+class AppointmentsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+
+class AppointmentFormViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = AppointmentForm.objects.all()
+    serializer_class = AppointmentFormSerializer
 
 
 class FormViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
@@ -23,7 +42,7 @@ class ActivePhysicalExamFormsViewSet(viewsets.ModelViewSet):
 class ActiveROSFormsViewSet(viewsets.ModelViewSet):
     queryset = Form.objects.filter(form_type='review_of_systems', active=True)
     serializer_class = FormSerializer
-
+"""
 class FormFieldViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = FormField.objects.all()
     serializer_class = FormFieldSerializer
@@ -31,60 +50,35 @@ class FormFieldViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 class FormFieldOptionViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = FormFieldOption.objects.all()
     serializer_class = FormFieldOptionSerializer
+"""
 
-class AppointmentFormViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = AppointmentForm.objects.all()
-    serializer_class = AppointmentFormSerializer
 
+"""
 class AppointmentsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = BasicAppointmentSerializer
-
+"""
 #queryset = AppointmentForm.objects.filter(form__values__contains={'checked': True})
 #serializer_class = AppointmentFindingsSerializer
 #queryset = AppointmentForm.objects.filter(form__customformfields__contains=[{'checked': True}])
 #queryset = AppointmentForm.objects.filter(form__customformfields__contains=[{'checked': True}])
 #queryset = AppointmentForm.objects.filter(form__customformfields__contains={'checked': True})
+
+"""
+"""
 class AppointmentFindingViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = AppointmentForm.objects.filter(form__customformfields__contains=[{'checked': True}])
     serializer_class = AppointmentFormSerializer
 
 class TodaysAppointmentsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Appointment.objects.filter(start__date=datetime.date.today())
-    serializer_class = BasicAppointmentSerializer
+    serializer_class = AppointmentSerializer
 
 
 class PatientInsurancesViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Insurance.objects.all()
     serializer_class = PatientInsuranceSerializer
-
-
-class ProvidersViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = Provider.objects.all()
-    serializer_class = BasicProviderSerializer
-
-
-class VitalViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = Vital.objects.all()
-    serializer_class = AppointmentVitalsSerializer
-
-
-class ComplaintViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = Complaint.objects.all()
-    serializer_class = AppointmentComplaintSerializer
-
-
-class AssessmentViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = Assessment.objects.all()
-    serializer_class = AppointmentAssessmentSerializer
-
-
-class SummaryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
-    queryset = Summary.objects.all()
-    serializer_class = AppointmentSummarySerializer
-
 # Patient View Sets
-
 
 class CreatePatientRequestsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = PatientRequest.objects.all()
@@ -172,7 +166,29 @@ class BasicPatientsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ['first_name', 'last_name', 'middle_name', 'preferred_name', 'date_of_birth']
 
+class PatientAllergyViewSet(viewsets.ModelViewSet):
+    queryset = Allergy.objects.all()
+    serializer_class = AllergySerializer
+"""
+class VitalViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Vital.objects.all()
+    serializer_class = AppointmentVitalsSerializer
+class ComplaintViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Complaint.objects.all()
+    serializer_class = AppointmentComplaintSerializer
 
+
+class AssessmentViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Assessment.objects.all()
+    serializer_class = AppointmentAssessmentSerializer
+
+
+class SummaryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Summary.objects.all()
+    serializer_class = AppointmentSummarySerializer    
+"""
+
+"""
 #Allergy View Sets
 class LatexAllergyViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = LatexAllergy.objects.all()
@@ -202,3 +218,5 @@ class FoodAllergyViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
 class InsectAllergyViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = InsectAllergies.objects.all()
     serializer_class = InsectAllergySerializer
+"""
+

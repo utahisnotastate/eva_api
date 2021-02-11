@@ -34,8 +34,9 @@ class PracticeSettings(models.Model):
     phone_number = PhoneNumberField()
 
 
-class PracticeUpdate(models.Model):
-    update = models.TextField()
+class PracticeNews(models.Model):
+    title = models.TextField(blank=True)
+    news =  models.TextField(blank=True)
     display = models.BooleanField()
     created = models.DateTimeField(auto_now_add=True)
 
@@ -70,168 +71,56 @@ def default_appointment_clinical_data():
     }
     return clinical_data
 
+
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')
-    type_choices = [('first_appointment', 'First Appointment'), ('medication_management', 'Medication Management'),
-                    ('follow_up', 'Follow Up'), ('appointment', 'Appointment')]
-    type = models.CharField(choices=type_choices, max_length=100, default=type_choices[3][1])
-    status_choices = [('scheduled', 'Scheduled'), ('arrived', 'Arrived'), ('in_exam_room', 'In Exam Room'),
-                      ('in_progress', 'In progress'), ('complete', 'Complete'), ('cancelled', 'Cancelled')]
-    #status = models.CharField(max_length=100, default="scheduled")
-    #clinical_data = models.JSONField(default=default_appointment_clinical_data)
-    status = models.CharField(choices=status_choices, max_length=100, default=status_choices[0][1])
+    type = models.CharField(max_length=100, blank=True, null=True)
+    clinical_data = JSONField(default=default_appointment_clinical_data)
+    status = models.CharField(max_length=100, default="scheduled")
     start = models.DateTimeField()
+    actual_start = models.DateTimeField()
     # rescheduledfrom = models.IntegerField(default=0)
     end = models.DateTimeField()
+    actual_end = models.DateTimeField()
     scheduled_on = models.DateTimeField(auto_now_add=True)
-    appointment_assessment = JSONField(blank=True, null=True)
-    appointment_plan = JSONField(blank=True, null=True)
-    appointment_summary = models.TextField(blank=True)
+    scheduling_note = models.TextField(blank=True, null=True)
 
-#class AppointmentClinicalResult(models.Model):
-    #appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
-    #complaints = JSONField(blank=True, null=True)
-    #findings = JSONField(blank=True, null=True)
-    #assessment = JSONField(blank=True, null=True)
-    #plan = JSONField(blank=True, null=True)
+def create_default_appointment_form():
+    form = {
+        "customformfields": []
+    }
+    return form
 
-
-
-
-# class AppointmentAssessment(models.Model):
-# appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='assessments')
-#  icd_code = models.CharField(max_length=10, blank=True, null=True)
-# icd_description = models.CharField(max_length=100, blank=True, null=True)
-
-
-class AppointmentFinding(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_findings')
-    form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='appointment_form_findings')
-    findings = JSONField(blank=True, null=True)
-    # form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='appointment_findings_fields')
-    # value = models.TextField()
-
+#I think this model wont be necessary now that we moved the JSON field to the appointment models
 class AppointmentForm(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_forms')
     # form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='appointment_forms')
     title = models.CharField(max_length=100)
     form_type = models.CharField(max_length=100)
-    form = JSONField(blank=True, null=True)
-
-# I dont think we use this formfield anymore
-class Vital(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='vitals')
-    systolic_pressure = models.PositiveIntegerField(blank=True, null=True)
-    diastolic_pressure = models.PositiveIntegerField(blank=True, null=True)
-    temperature_value = models.PositiveIntegerField(blank=True, null=True)
-    temperature_unit_choices = [('fahrenheit', 'Fahrenheit'), ('celsius', 'Celsius')]
-    temperature_unit = models.CharField(choices=temperature_unit_choices, max_length=30, blank=True, null=True)
-    pulse = models.PositiveIntegerField(blank=True, null=True)
-    weight_value = models.PositiveIntegerField(blank=True, null=True)
-    weight_unit_choices = [('pounds', 'Pounds'), ('kilograms', 'Kilograms')]
-    weight_unit = models.CharField(choices=weight_unit_choices, max_length=30, blank=True, null=True)
-
-# I dont think we use this formfield anymore
-class FormFieldOption(models.Model):
-    form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='field_options')
-    label = models.CharField(max_length=50, null=True, blank=True)
-    name = models.CharField(max_length=50, null=True, blank=True)
+    form = JSONField(default=create_default_appointment_form)
 
 
-# I dont think we use this formfield anymore
-class FormField(models.Model):
-    form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='form_fields')
-    position = models.SmallIntegerField(null=True, blank=True)
-    has_options = models.BooleanField(default=False)
-    checked = models.BooleanField(default=False)
-    label = models.CharField(max_length=50)
-    type = models.CharField(max_length=50)
+def create_default_form():
+    form = {
+        "customformfields": []
+    }
+    return form
 
-
+#Physical exam forms and ROS forms can be stored in this table
 class Form(models.Model):
     form_type = models.CharField(max_length=100)
     title = models.CharField(max_length=100)
     active = models.BooleanField(default=False)
-    form = JSONField(blank=True, null=True)
-
-
-class ComplaintTherapeuticAttempt(models.Model):
-    complaint = models.ForeignKey('Complaint', on_delete=models.CASCADE, related_name='complaint_therapeutic_attempts')
-    type = models.CharField(max_length=100)
-    description = models.TextField()
-    helped_choices = (
-        (None, 'Unchecked'),
-        (True, 'Helped'),
-        (False, 'Didnt Help')
-    )
-    helped = models.NullBooleanField(choices=helped_choices, default=None)
-
-
-def defaultcomplaint():
-    return {"customformfields": []}
-
-
-class Complaint(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='complaints')
-    # icd_code = models.CharField(max_length=10, blank=True, null=True)
-    # icd_description = models.CharField(max_length=100, blank=True, null=True)
-    complaint_name = models.CharField(max_length=100, blank=True, null=True)
-    complaint_description = models.TextField(blank=True, null=True)
-    onset_number = models.SmallIntegerField(blank=True, null=True)
-    onset_unit_choices = [('day', 'Day(s)'), ('weeks', 'Week(s)'), ('months', 'Month(s)'), ('years', 'Years')]
-    onset_unit = models.CharField(choices=onset_unit_choices, max_length=40, blank=True, null=True)
-    onset_doesnt_remember = models.BooleanField(default=False)
-    onset_not_asked = models.BooleanField(default=True)
-    location_choices = [('head', 'Head'), ('neck', 'Neck'), ('upper_extremity', 'Upper Extremity'), ('chest', 'Chest'),
-                        ('abdomen', 'abdomen'), ('groin', 'Groin'), ('lower_extremity', 'Lower Extremity')]
-    location = models.CharField(choices=location_choices, max_length=30, blank=True, null=True)
-    patient_belief_caused_by = models.TextField(blank=True, null=True)
-    patient_therapeutic_attempts = models.TextField(blank=True, null=True)
-    patients_guess = models.TextField(blank=True, null=True)
-    other_notes = models.TextField(blank=True, null=True)
-    appointment_complaints = JSONField(blank=True, null=True)
-
-
-class AssessmentRelatedTo(models.Model):
-    assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='assessment_related_to')
-    category_choices = [('complaint', 'Complaint'), ('review_of_systems', 'Review of Systems Finding'),
-                        ('physical_exam', 'Physical Exam Finding')]
-    category = models.CharField(choices=category_choices, blank=True, null=True, max_length=50)
-
-
-class Assessment(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='assessments')
-    icd_code = models.CharField(max_length=10, blank=True, null=True)
-    icd_description = models.CharField(max_length=100, blank=True, null=True)
-    other_assessment = models.TextField(blank=True, null=True)
-    based_on = JSONField(blank=True, null=True)
-
-
-class AppointmentPlan(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_plans')
-    plan_choices = [('no_follow_up_necessary', 'No follow up necessary'),
-                    ('prescribe_medication', 'Prescribe Medication'), ('order_labs', 'Order Labs'),
-                    ('order_imaging', 'Order Imaging'), ('specialist_referral', 'Specialist Referral'),
-                    ('schedule_follow_up', 'Schedule Follow Up')]
-    plan = models.CharField(choices=plan_choices, default='no_follow_up_necessary', max_length=60)
-    plan_details = models.TextField(blank=True, null=True)
-
-
-class Summary(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='summary')
-    summary = models.TextField(blank=True, null=True)
-
+    form = JSONField(default=create_default_form)
 
 # Patient Models
-
-
 class SurgicalHistory(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_surgeries')
     procedure = models.CharField(max_length=200)
     date = models.DateField(blank=True, null=True)
-    additional_information = models.TextField(null=True, blank=True);
-    performed_by = models.CharField(max_length=200, blank=True, null=True)
+    additional_information = models.TextField(blank=True);
+    performed_by = models.CharField(max_length=200, blank=True)
 
 
 class PatientReports(models.Model):
@@ -241,7 +130,7 @@ class PatientReports(models.Model):
     type = models.CharField(choices=patient_report_type_choices, max_length=30)
     file = models.FileField()
     received_on = models.DateField()
-    provider_notes = models.TextField(blank=True, null=True)
+    provider_notes = models.TextField(blank=True)
 
 
 class PatientDocumentation(models.Model):
@@ -275,13 +164,10 @@ class PatientMedication(models.Model):
     def __str__(self):
         return '%s %s' % (self.name, self.strength)
 
-
-
-
 class PatientDiagnosis(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_diagnoses')
-    diagnosis_icd_code = models.CharField(max_length=200, blank=True, null=True)
-    diagnosis_description = models.CharField(max_length=200, blank=True, null=True)
+    diagnosis_icd_code = models.CharField(max_length=200, blank=True)
+    diagnosis_description = models.CharField(max_length=200, blank=True)
     #diagnosis_status_choices = [('active', 'Active'), ('inactive', 'Inactive')]
     #diagnosis_status = models.CharField(choices=diagnosis_status_choices, max_length=20, blank=True, null=True)
     status = models.CharField(max_length=100, blank=True)
@@ -319,7 +205,7 @@ class PatientMedicationChanges(models.Model):
     new_frequency = models.CharField(max_length=200, blank=True)
     # can be changed dosage, stopped medication
     type = models.CharField(max_length=200, blank=True)
-    reason_for_change = models.TextField(blank=True, null=True)
+    reason_for_change = models.TextField(blank=True)
     date_changed = models.DateField(blank=True, null=True)
 
 
@@ -346,13 +232,10 @@ class PatientMedicationAuthorization(models.Model):
 
 class ContactInformation(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_contact_methods')
-    contact_types = [('cell', 'Cell'), ('home', 'Home'), ('work', 'Work')]
-    when_to_call_choices = [('morning', 'Morning'), ('daytime', 'Daytime'), ('evening', 'Evening'),
-                            ('anytime', 'Anytime')]
-    type = models.CharField(choices=contact_types, max_length=5)
+    type = models.CharField(max_length=30, blank=True)
     number = PhoneNumberField()
-    when_to_call = models.CharField(choices=when_to_call_choices, max_length=20)
-    special_instructions = models.TextField(blank=True, null=True)
+    when_to_call = models.CharField(max_length=30, blank=True)
+    special_instructions = models.TextField(blank=True)
 
 
 class Guarantor(models.Model):
@@ -360,9 +243,9 @@ class Guarantor(models.Model):
     guarantor_relationship_choices = [('self', 'Self'), ('parent', 'Parent'), ('spouse', 'Spouse')]
     relationship_to_patient = models.CharField(choices=guarantor_relationship_choices, max_length=20, blank=True,
                                                null=True)
-    guarantor_first_name = models.CharField(max_length=30, blank=True, null=True)
-    guarantor_last_name = models.CharField(max_length=30, blank=True, null=True)
-    guarantor_middle_name = models.CharField(max_length=30, blank=True, null=True)
+    guarantor_first_name = models.CharField(max_length=30, blank=True)
+    guarantor_last_name = models.CharField(max_length=30, blank=True)
+    guarantor_middle_name = models.CharField(max_length=30, blank=True)
 
 
 class PatientRequestUpdate(models.Model):
@@ -386,8 +269,8 @@ class PatientRequest(models.Model):
 class Address(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_addresses')
     active = models.BooleanField()
-    address_one = models.CharField(max_length=50, blank=True, null=True)
-    address_two = models.CharField(max_length=50)
+    address_one = models.CharField(max_length=150)
+    address_two = models.CharField(max_length=50, blank=True)
     city = models.CharField(max_length=50)
     state = models.CharField(max_length=2)
     zip_code = models.CharField(max_length=5)
@@ -396,14 +279,14 @@ class Address(models.Model):
 class Insurance(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insurances')
     type_choices = [('primary', 'primary'), ('secondary', 'secondary')]
-    insurance_name = models.CharField(max_length=200, blank=True, null=True)
-    tradingPartnerId = models.CharField(max_length=200, blank=True, null=True)
-    group_ID = models.CharField(max_length=200, blank=True, null=True)
-    bin_number = models.CharField(max_length=200, blank=True, null=True)
-    pcn = models.CharField(max_length=200, blank=True, null=True)
-    type = models.CharField(choices=type_choices, max_length=50, blank=True, null=True)
-    member_id = models.CharField(max_length=30, blank=True, null=True)
-    relationship_code = models.CharField(max_length=2, blank=True, null=True)
+    insurance_name = models.CharField(max_length=200, blank=True)
+    tradingPartnerId = models.CharField(max_length=200, blank=True)
+    group_ID = models.CharField(max_length=200, blank=True)
+    bin_number = models.CharField(max_length=200, blank=True)
+    pcn = models.CharField(max_length=200, blank=True)
+    type = models.CharField(choices=type_choices, max_length=50, blank=True)
+    member_id = models.CharField(max_length=30, blank=True)
+    relationship_code = models.CharField(max_length=2, blank=True)
     active = models.BooleanField(null=True)
     date_effective = models.DateField(blank=True, null=True)
     date_terminated = models.DateField(blank=True, null=True)
@@ -423,10 +306,189 @@ class Demographics(models.Model):
     employment_status = models.CharField(choices=EMPLOYMENT_CHOICES, max_length=20)
     email = models.EmailField()
 
+class Allergy(models.Model):
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insect_allergies')
+    type = models.CharField(max_length=200, blank=True)
+    notes = models.TextField(blank=True)
+    treatment = models.TextField(blank=True)
 
+
+class Patient(models.Model):
+    first_name = models.CharField(max_length=30, blank=False)
+    last_name = models.CharField(max_length=30, blank=False)
+    middle_name = models.CharField(max_length=30, blank=False)
+    preferred_name = models.CharField(max_length=30, blank=True)
+    date_of_birth = models.DateField(blank=False)
+    ssn = models.BigIntegerField(blank=False)
+
+    @property
+    def display_name(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    def __str__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
+    # APPOINTMENTS (one to many)
+    # Medications Field (one to many)
+    # DIAGNOSIS FIELD (one to many)
+    # Family Medical History field (one to many)
+    # Medical History Field (one to many)
+# I dont think we use this formfield anymore
+
+"""
+#status = models.CharField(max_length=100, default="scheduled")
+
+status_choices = [('scheduled', 'Scheduled'), ('arrived', 'Arrived'), ('in_exam_room', 'In Exam Room'),
+                      ('in_progress', 'In progress'), ('complete', 'Complete'), ('cancelled', 'Cancelled')]
+
+type = models.CharField(choices=type_choices, max_length=100, default=type_choices[3][1])
+
+type_choices = [('first_appointment', 'First Appointment'), ('medication_management', 'Medication Management'),
+                   ('follow_up', 'Follow Up'), ('appointment', 'Appointment')]
+
+#appointment_assessment = JSONField(blank=True, null=True)
+#appointment_plan = JSONField(blank=True, null=True)
+#appointment_summary = models.TextField(blank=True)    
+"""
+
+#class AppointmentClinicalResult(models.Model):
+    #appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    #complaints = JSONField(blank=True, null=True)
+    #findings = JSONField(blank=True, null=True)
+    #assessment = JSONField(blank=True, null=True)
+    #plan = JSONField(blank=True, null=True)
+
+
+
+
+# class AppointmentAssessment(models.Model):
+# appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='assessments')
+#  icd_code = models.CharField(max_length=10, blank=True, null=True)
+# icd_description = models.CharField(max_length=100, blank=True, null=True)
+
+# might delete this
+
+"""
+class AppointmentFinding(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_findings')
+    form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='appointment_form_findings')
+    findings = JSONField(blank=True, null=True)
+    # form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='appointment_findings_fields')
+    # value = models.TextField()
+"""
+"""
+class Vital(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='vitals')
+    systolic_pressure = models.PositiveIntegerField(blank=True, null=True)
+    diastolic_pressure = models.PositiveIntegerField(blank=True, null=True)
+    temperature_value = models.PositiveIntegerField(blank=True, null=True)
+    temperature_unit_choices = [('fahrenheit', 'Fahrenheit'), ('celsius', 'Celsius')]
+    temperature_unit = models.CharField(choices=temperature_unit_choices, max_length=30, blank=True, null=True)
+    pulse = models.PositiveIntegerField(blank=True, null=True)
+    weight_value = models.PositiveIntegerField(blank=True, null=True)
+    weight_unit_choices = [('pounds', 'Pounds'), ('kilograms', 'Kilograms')]
+    weight_unit = models.CharField(choices=weight_unit_choices, max_length=30, blank=True, null=True)
+"""
+
+
+# I dont think we use this formfield anymore
+"""
+class FormFieldOption(models.Model):
+    form_field = models.ForeignKey('FormField', on_delete=models.CASCADE, related_name='field_options')
+    label = models.CharField(max_length=50, null=True, blank=True)
+    name = models.CharField(max_length=50, null=True, blank=True)
+
+
+# I dont think we use this formfield anymore
+class FormField(models.Model):
+    form = models.ForeignKey('Form', on_delete=models.CASCADE, related_name='form_fields')
+    position = models.SmallIntegerField(null=True, blank=True)
+    has_options = models.BooleanField(default=False)
+    checked = models.BooleanField(default=False)
+    label = models.CharField(max_length=50)
+    type = models.CharField(max_length=50)
+
+"""
+
+
+"""
+class ComplaintTherapeuticAttempt(models.Model):
+    complaint = models.ForeignKey('Complaint', on_delete=models.CASCADE, related_name='complaint_therapeutic_attempts')
+    type = models.CharField(max_length=100)
+    description = models.TextField()
+    helped_choices = (
+        (None, 'Unchecked'),
+        (True, 'Helped'),
+        (False, 'Didnt Help')
+    )
+    helped = models.NullBooleanField(choices=helped_choices, default=None)
+
+def defaultcomplaint():
+    return {"customformfields": []}
+"""
+"""
+class Complaint(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='complaints')
+    # icd_code = models.CharField(max_length=10, blank=True, null=True)
+    # icd_description = models.CharField(max_length=100, blank=True, null=True)
+    complaint_name = models.CharField(max_length=100, blank=True, null=True)
+    complaint_description = models.TextField(blank=True, null=True)
+    onset_number = models.SmallIntegerField(blank=True, null=True)
+    onset_unit_choices = [('day', 'Day(s)'), ('weeks', 'Week(s)'), ('months', 'Month(s)'), ('years', 'Years')]
+    onset_unit = models.CharField(choices=onset_unit_choices, max_length=40, blank=True, null=True)
+    onset_doesnt_remember = models.BooleanField(default=False)
+    onset_not_asked = models.BooleanField(default=True)
+    location_choices = [('head', 'Head'), ('neck', 'Neck'), ('upper_extremity', 'Upper Extremity'), ('chest', 'Chest'),
+                        ('abdomen', 'abdomen'), ('groin', 'Groin'), ('lower_extremity', 'Lower Extremity')]
+    location = models.CharField(choices=location_choices, max_length=30, blank=True, null=True)
+    patient_belief_caused_by = models.TextField(blank=True, null=True)
+    patient_therapeutic_attempts = models.TextField(blank=True, null=True)
+    patients_guess = models.TextField(blank=True, null=True)
+    other_notes = models.TextField(blank=True, null=True)
+    appointment_complaints = JSONField(blank=True, null=True)
+"""
+
+
+"""
+class AssessmentRelatedTo(models.Model):
+    assessment = models.ForeignKey('Assessment', on_delete=models.CASCADE, related_name='assessment_related_to')
+    category_choices = [('complaint', 'Complaint'), ('review_of_systems', 'Review of Systems Finding'),
+                        ('physical_exam', 'Physical Exam Finding')]
+    category = models.CharField(choices=category_choices, blank=True, null=True, max_length=50)
+
+
+class Assessment(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='assessments')
+    icd_code = models.CharField(max_length=10, blank=True, null=True)
+    icd_description = models.CharField(max_length=100, blank=True, null=True)
+    other_assessment = models.TextField(blank=True, null=True)
+    based_on = JSONField(blank=True, null=True)
+
+
+class AppointmentPlan(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='appointment_plans')
+    plan_choices = [('no_follow_up_necessary', 'No follow up necessary'),
+                    ('prescribe_medication', 'Prescribe Medication'), ('order_labs', 'Order Labs'),
+                    ('order_imaging', 'Order Imaging'), ('specialist_referral', 'Specialist Referral'),
+                    ('schedule_follow_up', 'Schedule Follow Up')]
+    plan = models.CharField(choices=plan_choices, default='no_follow_up_necessary', max_length=60)
+    plan_details = models.TextField(blank=True, null=True)
+
+
+class Summary(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, related_name='summary')
+    summary = models.TextField(blank=True, null=True)
+"""
+
+
+"""
+    when_to_call_choices = [('morning', 'Morning'), ('daytime', 'Daytime'), ('evening', 'Evening'),
+                            ('anytime', 'Anytime')]
+    contact_types = [('cell', 'Cell'), ('home', 'Home'), ('work', 'Work')]                            
+"""
 # Patient Allergy Models
 
-
+"""
 class LatexAllergy(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
     STATUS_CHOICES = [('unchecked', 'Unchecked'), ('not_present', 'Not Present'), ('present', 'Present')]
@@ -453,31 +515,11 @@ class DrugAllergies(models.Model):
 
 class FoodAllergies(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_food_allergies')
-    food = models.CharField(max_length=200, blank=True, null=True)
+    food = models.CharField(max_length=200, blank=True)
 
 
 class InsectAllergies(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insect_allergies')
-    insect = models.CharField(max_length=200, blank=True, null=True)
+    insect = models.CharField(max_length=200, blank=True)
 
-
-class Patient(models.Model):
-    first_name = models.CharField(max_length=30, blank=False)
-    last_name = models.CharField(max_length=30, blank=False)
-    middle_name = models.CharField(max_length=30, blank=False)
-    preferred_name = models.CharField(max_length=30, blank=True)
-    date_of_birth = models.DateField(blank=False)
-    ssn = models.BigIntegerField(blank=False)
-
-    @property
-    def display_name(self):
-        return '%s %s' % (self.first_name, self.last_name)
-
-    def __str__(self):
-        return '%s %s' % (self.first_name, self.last_name)
-
-    # APPOINTMENTS (one to many)
-    # Medications Field (one to many)
-    # DIAGNOSIS FIELD (one to many)
-    # Family Medical History field (one to many)
-    # Medical History Field (one to many)
+"""

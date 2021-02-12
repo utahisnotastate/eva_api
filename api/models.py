@@ -173,7 +173,8 @@ class PatientDiagnosis(models.Model):
     status = models.CharField(max_length=100, blank=True)
     diagnosed_on = models.DateField(blank=True, null=True)
     diagnosed_by = models.CharField(max_length=200, blank=True)
-    medications = models.ManyToManyField(PatientMedication, blank=True, related_name="medication_diagnoses")
+    # related_name="medication_diagnoses"
+    medications = models.ManyToManyField(PatientMedication, blank=True, related_name="diagnosis_medications")
 
     def __str__(self):
         return '%s %s' % (self.diagnosis_icd_code, self.diagnosis_description)
@@ -233,8 +234,8 @@ class PatientMedicationAuthorization(models.Model):
 class ContactInformation(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_contact_methods')
     type = models.CharField(max_length=30, blank=True)
-    number = PhoneNumberField()
-    when_to_call = models.CharField(max_length=30, blank=True)
+    number = PhoneNumberField(blank=True)
+    #when_to_call = models.CharField(max_length=30, blank=True)
     special_instructions = models.TextField(blank=True)
 
 
@@ -255,7 +256,7 @@ class PatientRequestUpdate(models.Model):
 
 
 class PatientRequest(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE)
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_requests')
     request_types = [('medication', 'Medication Refill'),
                      ('insurance_authorization_medication', 'Medication Insurance Authorization'), ('other', 'Other'),
                      ('clinical_question', 'Clinical Question')]
@@ -265,49 +266,35 @@ class PatientRequest(models.Model):
     status = models.CharField(choices=request_status_choices, max_length=50)
     request_description = models.TextField()
 
-
-class Address(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_addresses')
-    active = models.BooleanField()
-    address_one = models.CharField(max_length=150)
-    address_two = models.CharField(max_length=50, blank=True)
-    city = models.CharField(max_length=50)
-    state = models.CharField(max_length=2)
-    zip_code = models.CharField(max_length=5)
-
-
 class Insurance(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insurances')
     type_choices = [('primary', 'primary'), ('secondary', 'secondary')]
     insurance_name = models.CharField(max_length=200, blank=True)
     tradingPartnerId = models.CharField(max_length=200, blank=True)
+    primary = models.BooleanField(null=True, blank=True)
     group_ID = models.CharField(max_length=200, blank=True)
     bin_number = models.CharField(max_length=200, blank=True)
     pcn = models.CharField(max_length=200, blank=True)
     type = models.CharField(choices=type_choices, max_length=50, blank=True)
     member_id = models.CharField(max_length=30, blank=True)
     relationship_code = models.CharField(max_length=2, blank=True)
-    active = models.BooleanField(null=True)
+    # active = models.BooleanField(null=True)
     date_effective = models.DateField(blank=True, null=True)
     date_terminated = models.DateField(blank=True, null=True)
     copay_amount = models.DecimalField(decimal_places=2, max_digits=8)
 
+    @property
+    def active(self):
+        if self.date_terminated:
+            return False
+        else:
+            return True
 
-class Demographics(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_demographics')
-    GENDER_CHOICES = [('male', 'Male'), ('female', 'Female'), ]
-    RACE_CHOICES = [('black-non-hispanic', 'Black - Non Hispanic'), ('caucasian', 'Caucasian'), ('other', 'Other')]
-    MARITAL_CHOICES = [('single', 'Single'), ('married', 'Married'), ('divorced', 'Divorced'), ('widow', 'Widow')]
-    EMPLOYMENT_CHOICES = [('full_time', 'Employed Full Time'), ('part_time', 'Employed Part Time'),
-                          ('unemployed', 'Unemployed')]
-    race = models.CharField(choices=RACE_CHOICES, max_length=20)
-    gender = models.CharField(choices=GENDER_CHOICES, max_length=20)
-    marital_status = models.CharField(choices=MARITAL_CHOICES, max_length=20)
-    employment_status = models.CharField(choices=EMPLOYMENT_CHOICES, max_length=20)
-    email = models.EmailField()
+
+
 
 class Allergy(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insect_allergies')
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_allergies')
     type = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)
     treatment = models.TextField(blank=True)
@@ -327,6 +314,37 @@ class Patient(models.Model):
 
     def __str__(self):
         return '%s %s' % (self.first_name, self.last_name)
+
+"""
+    GENDER_CHOICES = [('male', 'Male'), ('female', 'Female'), ]
+    RACE_CHOICES = [('black-non-hispanic', 'Black - Non Hispanic'), ('caucasian', 'Caucasian'), ('other', 'Other')]
+    MARITAL_CHOICES = [('single', 'Single'), ('married', 'Married'), ('divorced', 'Divorced'), ('widow', 'Widow')]
+    EMPLOYMENT_CHOICES = [('full_time', 'Employed Full Time'), ('part_time', 'Employed Part Time'),
+                          ('unemployed', 'Unemployed')]
+   
+       race = models.CharField(choices=RACE_CHOICES, max_length=20)
+    gender = models.CharField(choices=GENDER_CHOICES, max_length=20)
+    marital_status = models.CharField(choices=MARITAL_CHOICES, max_length=20)
+    employment_status = models.CharField(choices=EMPLOYMENT_CHOICES, max_length=20)                       
+"""
+
+
+class Demographics(models.Model):
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+    race = models.CharField(max_length=50, blank=True)
+    gender = models.CharField(max_length=50, blank=True)
+    marital_status = models.CharField(max_length=50, blank=True)
+    employment_status = models.CharField(max_length=50, blank=True)
+    email = models.EmailField(max_length=50, blank=True)
+
+class Address(models.Model):
+    #patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_addresses')
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+    address_one = models.CharField(max_length=150, blank=True)
+    address_two = models.CharField(max_length=50, blank=True)
+    city = models.CharField(max_length=50, blank=True)
+    state = models.CharField(max_length=2, blank=True)
+    zip_code = models.CharField(max_length=5, blank=True)
 
     # APPOINTMENTS (one to many)
     # Medications Field (one to many)

@@ -34,7 +34,8 @@ appointments.register(r'summary', views.SummaryViewSet, basename='appointment-vi
 
 appointmentstoday = router.register(r'appointmentstoday', views.TodaysAppointmentsViewSet, basename='appointments-today')
 
-patients = router.register(r'patients', views.BasicPatientsViewSet)
+#patients = router.register(r'patients', views.BasicPatientsViewSet)
+patients = router.register(r'patients', views.FullPatientsViewSet)
 patients.register(r'demographics', views.PatientDemographicsViewSet, basename='patient-demographics', parents_query_lookups=['patient'])
 patients.register(r'address', views.PatientAddressViewSet, basename='patient-address', parents_query_lookups=['patient'])
 patients.register(r'contactinformation', views.PatientContactInformationViewSet, basename='patient-contactinformation', parents_query_lookups=['patient'])

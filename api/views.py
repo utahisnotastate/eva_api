@@ -2,7 +2,7 @@ from rest_framework import generics, viewsets, filters
 import datetime
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from .models import PracticeSettings, PracticeNews, Provider, Appointment, AppointmentForm,  Form, Allergy, PatientDiagnosis, PatientMedicationChanges,PatientMedicationAuthorization ,PatientMedicationPrescription, Insurance, Patient, Demographics, Address, Guarantor, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, PatientRequest, PatientRequestUpdate, ContactInformation
-from .serializers import PracticeSettingsSerializer, PracticeNewsSerializer, AppointmentSerializer, BasicProviderSerializer, AppointmentSerializer, AppointmentFormSerializer, FormSerializer, AllergySerializer, BasicMedicationSerializer,PatientMedicationChangesSerializer,PatientMedicationAuthorizationSerializer, PatientMedicationPrescriptionHistorySerializer,PatientMedicationPrescriptionSerializer, PatientDiagnosisSerializer, CreatePatientRequestsSerializer, PatientInsuranceSerializer, PatientRequestUpdateSerializer, PatientRequestsSerializer,  BasicPatientSerializer, PatientDemographicsSerializer, PatientAddressSerializer, PatientGuarantorSerializer, PatientDocumentationSerializer, PatientReportsSerializer, PatientSurgicalHistorySerializer, PatientMedicationSerializer, PatientContactInformationSerializer
+from .serializers import PracticeSettingsSerializer, PracticeNewsSerializer, AppointmentSerializer, BasicProviderSerializer, AppointmentSerializer, AppointmentFormSerializer, FormSerializer, AllergySerializer, BasicMedicationSerializer,PatientMedicationChangesSerializer,PatientMedicationAuthorizationSerializer, PatientMedicationPrescriptionHistorySerializer,PatientMedicationPrescriptionSerializer, PatientDiagnosisSerializer, CreatePatientRequestsSerializer, PatientInsuranceSerializer, PatientRequestUpdateSerializer, PatientRequestsSerializer,  BasicPatientSerializer, FullPatientSerializer, PatientDemographicsSerializer, PatientAddressSerializer, PatientGuarantorSerializer, PatientDocumentationSerializer, PatientReportsSerializer, PatientSurgicalHistorySerializer, PatientMedicationSerializer, PatientContactInformationSerializer
 from django.shortcuts import render
 
 # Create your views here.
@@ -165,6 +165,10 @@ class BasicPatientsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     serializer_class = BasicPatientSerializer
     filter_backends = (filters.SearchFilter,)
     search_fields = ['first_name', 'last_name', 'middle_name', 'preferred_name', 'date_of_birth']
+
+class FullPatientsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = FullPatientSerializer
 
 class PatientAllergyViewSet(viewsets.ModelViewSet):
     queryset = Allergy.objects.all()

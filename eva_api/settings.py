@@ -133,7 +133,8 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+#phone number
+PHONENUMBER_DB_FORMAT = 'INTERNATIONAL'
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 

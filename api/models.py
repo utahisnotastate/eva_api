@@ -60,16 +60,25 @@ class ClinicalQueueStep(models.Model):
     position: models.IntegerField()
 """
 
+
 def default_appointment_clinical_data():
-    clinical_data = {
-        "complaints": [],
-        "review_of_systems": [],
-        "physical_exam": [],
-        "assessments": [],
-        "plans": [],
-        "summary": ""
-    }
-    return clinical_data
+    # clinical_data = {
+    #     "complaints": [],
+    #     "review_of_systems": [],
+    #     "physical_exam": [],
+    #     "assessments": [],
+    #     "plans": [],
+    #     "summary": ""
+    # }
+    return dict(
+        {"complaints": [],
+         "clinical_forms": [],
+         "review_of_systems": [],
+         "physical_exam": [],
+         "assessments": [],
+         "plans": [],
+         "summary": ""}
+    )
 
 
 class Appointment(models.Model):
@@ -79,10 +88,10 @@ class Appointment(models.Model):
     clinical_data = JSONField(default=default_appointment_clinical_data)
     status = models.CharField(max_length=100, default="scheduled")
     start = models.DateTimeField()
-    actual_start = models.DateTimeField()
+    actual_start = models.DateTimeField(blank=True, null=True)
     # rescheduledfrom = models.IntegerField(default=0)
     end = models.DateTimeField()
-    actual_end = models.DateTimeField()
+    actual_end = models.DateTimeField(blank=True, null=True)
     scheduled_on = models.DateTimeField(auto_now_add=True)
     scheduling_note = models.TextField(blank=True, null=True)
 
@@ -119,7 +128,7 @@ class SurgicalHistory(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_surgeries')
     procedure = models.CharField(max_length=200)
     date = models.DateField(blank=True, null=True)
-    additional_information = models.TextField(blank=True);
+    additional_information = models.TextField(blank=True)
     performed_by = models.CharField(max_length=200, blank=True)
 
 
@@ -281,7 +290,7 @@ class Insurance(models.Model):
     # active = models.BooleanField(null=True)
     date_effective = models.DateField(blank=True, null=True)
     date_terminated = models.DateField(blank=True, null=True)
-    copay_amount = models.DecimalField(decimal_places=2, max_digits=8)
+    copay_amount = models.DecimalField(decimal_places=2, max_digits=8, blank=True, null=True)
 
     @property
     def active(self):
@@ -294,7 +303,7 @@ class Insurance(models.Model):
 
 
 class Allergy(models.Model):
-    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_allergies')
+    patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_allergies', blank=True, null=True)
     type = models.CharField(max_length=200, blank=True)
     notes = models.TextField(blank=True)
     treatment = models.TextField(blank=True)
@@ -305,8 +314,8 @@ class Patient(models.Model):
     last_name = models.CharField(max_length=30, blank=False)
     middle_name = models.CharField(max_length=30, blank=False)
     preferred_name = models.CharField(max_length=30, blank=True)
-    date_of_birth = models.DateField(blank=False)
-    ssn = models.BigIntegerField(blank=False)
+    date_of_birth = models.DateField(auto_now=False, auto_now_add=False, blank=False)
+    ssn = models.IntegerField(blank=False)
 
     @property
     def display_name(self):
@@ -328,23 +337,37 @@ class Patient(models.Model):
     employment_status = models.CharField(choices=EMPLOYMENT_CHOICES, max_length=20)                       
 """
 
-
-class Demographics(models.Model):
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
-    race = models.CharField(max_length=50, blank=True)
+not_listed = "not_listed"
+"""
+    race = models.CharField(max_length=50, default=not_listed)
     gender = models.CharField(max_length=50, blank=True)
     marital_status = models.CharField(max_length=50, blank=True)
     employment_status = models.CharField(max_length=50, blank=True)
     email = models.EmailField(max_length=50, blank=True)
-
-class Address(models.Model):
-    #patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_addresses')
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE)
+"""
+class Demographics(models.Model):
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='patient_demographics')
+    race = models.CharField(max_length=50, default=not_listed)
+    gender = models.CharField(max_length=50, default=not_listed)
+    marital_status = models.CharField(max_length=50, default=not_listed)
+    employment_status = models.CharField(max_length=50, default=not_listed)
+    email = models.EmailField(max_length=50, blank=True)
+"""
     address_one = models.CharField(max_length=150, blank=True)
     address_two = models.CharField(max_length=50, blank=True)
     city = models.CharField(max_length=50, blank=True)
     state = models.CharField(max_length=2, blank=True)
     zip_code = models.CharField(max_length=5, blank=True)
+"""
+
+class Address(models.Model):
+    #patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_addresses')
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='patient_address')
+    address_one = models.CharField(max_length=150, default=not_listed)
+    address_two = models.CharField(max_length=50, default=not_listed)
+    city = models.CharField(max_length=50, default=not_listed)
+    state = models.CharField(max_length=50, default=not_listed)
+    zip_code = models.CharField(max_length=50, default=not_listed)
 
     # APPOINTMENTS (one to many)
     # Medications Field (one to many)

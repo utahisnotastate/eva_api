@@ -2,7 +2,7 @@ from rest_framework import generics, viewsets, filters
 import datetime
 from rest_framework_extensions.mixins import NestedViewSetMixin
 from .models import PracticeSettings, PracticeNews, Provider, Appointment, AppointmentForm,  Form, Allergy, PatientDiagnosis, PatientMedicationChanges,PatientMedicationAuthorization ,PatientMedicationPrescription, Insurance, Patient, Demographics, Address, Guarantor, PatientDocumentation, PatientReports, SurgicalHistory, PatientMedication, PatientRequest, PatientRequestUpdate, ContactInformation
-from .serializers import PracticeSettingsSerializer, PracticeNewsSerializer, AppointmentSerializer, BasicProviderSerializer, AppointmentSerializer, AppointmentFormSerializer, FormSerializer, AllergySerializer, BasicMedicationSerializer,PatientMedicationChangesSerializer,PatientMedicationAuthorizationSerializer, PatientMedicationPrescriptionHistorySerializer,PatientMedicationPrescriptionSerializer, PatientDiagnosisSerializer, CreatePatientRequestsSerializer, PatientInsuranceSerializer, PatientRequestUpdateSerializer, PatientRequestsSerializer,  BasicPatientSerializer, FullPatientSerializer, PatientDemographicsSerializer, PatientAddressSerializer, PatientGuarantorSerializer, PatientDocumentationSerializer, PatientReportsSerializer, PatientSurgicalHistorySerializer, PatientMedicationSerializer, PatientContactInformationSerializer
+from .serializers import PracticeSettingsSerializer,InsuranceSerializer, AllPatientInsurancesSerializer, BasicPatientNameSerializer, PracticeNewsSerializer, AppointmentSerializer, BasicProviderSerializer, AppointmentSerializer, AppointmentFormSerializer, FormSerializer, AllergySerializer, BasicMedicationSerializer,PatientMedicationChangesSerializer,PatientMedicationAuthorizationSerializer, PatientMedicationPrescriptionHistorySerializer,PatientMedicationPrescriptionSerializer, PatientDiagnosisSerializer, CreatePatientRequestsSerializer, PatientInsuranceSerializer, PatientRequestUpdateSerializer, PatientRequestsSerializer,  BasicPatientSerializer, FullPatientSerializer, PatientDemographicsSerializer, PatientAddressSerializer, PatientGuarantorSerializer, PatientDocumentationSerializer, PatientReportsSerializer, PatientSurgicalHistorySerializer, PatientMedicationSerializer, PatientContactInformationSerializer
 from django.shortcuts import render
 
 # Create your views here.
@@ -75,9 +75,9 @@ class TodaysAppointmentsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
 
 
-class PatientInsurancesViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+class PatientInsurancesViewSet(viewsets.ModelViewSet):
     queryset = Insurance.objects.all()
-    serializer_class = PatientInsuranceSerializer
+    serializer_class = InsuranceSerializer
 # Patient View Sets
 
 class CreatePatientRequestsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
@@ -130,12 +130,12 @@ class PatientMedicationPrescriptionViewSet(NestedViewSetMixin, viewsets.ModelVie
     serializer_class = PatientMedicationPrescriptionSerializer
 
 
-class PatientDemographicsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+class PatientDemographicsViewSet(viewsets.ModelViewSet):
     queryset = Demographics.objects.all()
     serializer_class = PatientDemographicsSerializer
 
 
-class PatientAddressViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+class PatientAddressViewSet(viewsets.ModelViewSet):
     queryset = Address.objects.all()
     serializer_class = PatientAddressSerializer
 
@@ -159,12 +159,18 @@ class PatientSurgicalHistoryViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = SurgicalHistory.objects.all()
     serializer_class = PatientSurgicalHistorySerializer
 
+"""
+class BasicPatientsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
+    queryset = Patient.objects.all()
+    serializer_class = BasicPatientNameSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ['first_name', 'last_name', 'middle_name', 'preferred_name', 'date_of_birth']
+"""
+
 
 class BasicPatientsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Patient.objects.all()
-    serializer_class = BasicPatientSerializer
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ['first_name', 'last_name', 'middle_name', 'preferred_name', 'date_of_birth']
+    serializer_class = BasicPatientNameSerializer
 
 class FullPatientsViewSet(NestedViewSetMixin, viewsets.ModelViewSet):
     queryset = Patient.objects.all()

@@ -1,6 +1,6 @@
 from django.urls import include, path
 from rest_framework import routers
-from rest_framework_extensions.routers import NestedRouterMixin
+from rest_framework_extensions.routers import NestedRouterMixin, ExtendedDefaultRouter
 from . import views
 
 
@@ -34,8 +34,10 @@ appointments.register(r'summary', views.SummaryViewSet, basename='appointment-vi
 
 appointmentstoday = router.register(r'appointmentstoday', views.TodaysAppointmentsViewSet, basename='appointments-today')
 
-#patients = router.register(r'patients', views.BasicPatientsViewSet)
 patients = router.register(r'patients', views.FullPatientsViewSet)
+#patients = router.register(r'patients', views.BasicPatientsViewSet)
+# patients = router.register(r'patients', views.FullPatientsViewSet)
+# patients.register(r'basicinfo', views.BasicPatientsViewSet, basename='patients-basicinfo', parents_query_lookups=['id'])
 patients.register(r'demographics', views.PatientDemographicsViewSet, basename='patient-demographics', parents_query_lookups=['patient'])
 patients.register(r'address', views.PatientAddressViewSet, basename='patient-address', parents_query_lookups=['patient'])
 patients.register(r'contactinformation', views.PatientContactInformationViewSet, basename='patient-contactinformation', parents_query_lookups=['patient'])
@@ -54,7 +56,7 @@ patients.register(r'diagnoses', views.PatientDiagnosisViewSet, basename='patient
 patients.register(r'basicmedications', views.BasicPatientMedicatonViewSet, 'patient-basic-medications', parents_query_lookups=['patient'])
 patients.register(r'patientrequests', views.PatientRequestsViewSet, basename='patient-requests', parents_query_lookups=['patient']).register(r'updates', views.PatientRequestsUpdateViewSet, basename='patient-request-updates', parents_query_lookups=['id', 'request_id'])
 patients.register(r'createpatientrequest', views.CreatePatientRequestsViewSet, basename='create-patient-request', parents_query_lookups=['patient'])
-patients.register(r'insurance', views.PatientInsurancesViewSet, basename='patient-insurances', parents_query_lookups=['patient'])
+patients.register(r'patient_insurances', views.PatientInsurancesViewSet, basename='patient-insurances', parents_query_lookups=['patient'])
 patients.register(r'appointments', views.AppointmentsViewSet, basename='patient-appointments', parents_query_lookups=['patient'])
 patients.register(r'allergies', views.PatientAllergyViewSet, basename='patient-allergies', parents_query_lookups=['patient'])
 patient_medications = patients.register(r'medications', views.PatientMedicationViewSet, basename='patient-medications', parents_query_lookups=['patient'])
@@ -73,7 +75,6 @@ patients.register(r'insectallergy', views.InsectAllergyViewSet, basename='patien
 providers = router.register(r'providers', views.BasicProvidersViewSet)
 
 clinicalrequests = router.register(r'clinicalrequests', views.PatientRequestsViewSet).register(r'updates', views.PatientRequestsUpdateViewSet, basename='clinical-request-updates', parents_query_lookups=['id', 'request_id'])
-
 
 # urlpatterns = [
 #     path('appointments/', views.AppointmentList.as_view()),

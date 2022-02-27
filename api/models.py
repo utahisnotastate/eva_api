@@ -27,7 +27,8 @@ fields: [],
 
 class Form(models.Model):
     type = models.CharField(max_length=20, blank=True, null=True)
-    status = models.CharField(max_length=20, blank=True, null=True)
+    title = models.CharField(max_length=20, blank=True, null=True)
+    active = models.BooleanField(default=False)
     details = JSONField(null=True)
 
 
@@ -243,7 +244,7 @@ class PatientRequest(models.Model):
     details = JSONField(null=True)
     status = models.CharField(choices=request_status_choices, max_length=50)
     request_description = models.TextField()
-
+8
 """
 details object should look like this
 {

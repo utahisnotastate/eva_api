@@ -15,6 +15,20 @@ practice_news = router.register(r'practice_news', views.PracticeNewsViewSet)
 appointments = router.register(r'appointments', views.AppointmentsViewSet)
 
 forms = router.register(r'forms', views.FormsViewSet)
+appointmentstoday = router.register(r'appointmentstoday', views.TodaysAppointmentsViewSet, basename='appointments-today')
+
+#patients = router.register(r'patients', views.FullPatientsViewSet)
+patients = router.register(r'patients', views.PatientViewSet)
+
+patients.register(r'medications', views.PatientMedicationViewSet, 'patient-basic-medications', parents_query_lookups=['patient'])
+patients.register(r'patientrequests', views.PatientRequestsViewSet, basename='patient-requests', parents_query_lookups=['patient']).register(r'updates', views.PatientRequestsUpdateViewSet, basename='patient-request-updates', parents_query_lookups=['id', 'request_id'])
+patients.register(r'createpatientrequest', views.CreatePatientRequestsViewSet, basename='create-patient-request', parents_query_lookups=['patient'])
+patients.register(r'patient_insurances', views.PatientInsurancesViewSet, basename='patient-insurances', parents_query_lookups=['patient'])
+patients.register(r'appointments', views.AppointmentsViewSet, basename='patient-appointments', parents_query_lookups=['patient'])
+patients.register(r'medications', views.PatientMedicationViewSet, basename='patient-medications', parents_query_lookups=['patient'])
+clinicalrequests = router.register(r'clinicalrequests', views.PatientRequestsViewSet).register(r'updates', views.PatientRequestsUpdateViewSet, basename='clinical-request-updates', parents_query_lookups=['id', 'request_id'])
+providers = router.register(r'providers', views.BasicProvidersViewSet)
+
 """
 appointments.register(r'vitals', views.VitalViewSet, basename='appointment-vitals', parents_query_lookups=['appointment'])
 appointments.register(r'complaints', views.ComplaintViewSet, basename='appointment-complaints', parents_query_lookups=['appointment'])
@@ -23,23 +37,11 @@ appointments.register(r'assessments', views.AssessmentViewSet, basename='appoint
 appointments.register(r'findings', views.AppointmentFindingViewSet, basename='appointment-findings', parents_query_lookups=['appointment'])
 appointments.register(r'summary', views.SummaryViewSet, basename='appointment-vitals', parents_query_lookups=['appointment'])
 """
-
-
-appointmentstoday = router.register(r'appointmentstoday', views.TodaysAppointmentsViewSet, basename='appointments-today')
-
-#patients = router.register(r'patients', views.FullPatientsViewSet)
-patients = router.register(r'patients', views.PatientViewSet)
-
-patients.register(r'medications', views.PatientMedicationViewSet, 'patient-basic-medications', parents_query_lookups=['patient'])
-#patients.register(r'basicmedications', views.BasicPatientMedicatonViewSet, 'patient-basic-medications', parents_query_lookups=['patient'])
-patients.register(r'patientrequests', views.PatientRequestsViewSet, basename='patient-requests', parents_query_lookups=['patient']).register(r'updates', views.PatientRequestsUpdateViewSet, basename='patient-request-updates', parents_query_lookups=['id', 'request_id'])
-patients.register(r'createpatientrequest', views.CreatePatientRequestsViewSet, basename='create-patient-request', parents_query_lookups=['patient'])
-patients.register(r'patient_insurances', views.PatientInsurancesViewSet, basename='patient-insurances', parents_query_lookups=['patient'])
-patients.register(r'appointments', views.AppointmentsViewSet, basename='patient-appointments', parents_query_lookups=['patient'])
 #patients.register(r'allergies', views.PatientAllergyViewSet, basename='patient-allergies', parents_query_lookups=['patient'])
-patients.register(r'medications', views.PatientMedicationViewSet, basename='patient-medications', parents_query_lookups=['patient'])
+
 #patient_medications.register(r'prescriptions', views.PatientMedicationPrescriptionViewSet, basename='medication-prescriptions', parents_query_lookups=['id', 'medication'])
 #patient_medications.register(r'authorizations', views.PatientMedicationAuthorizationViewSet, basename='patient-medication-authorizations', parents_query_lookups=['medication_id', 'id'])
+#patients.register(r'basicmedications', views.BasicPatientMedicatonViewSet, 'patient-basic-medications', parents_query_lookups=['patient'])
 
 
 
@@ -53,7 +55,6 @@ patients.register(r'foodallergy', views.FoodAllergyViewSet, basename='patient-fo
 patients.register(r'insectallergy', views.InsectAllergyViewSet, basename='patient-insectallergy', parents_query_lookups=['patient'])
 """
 
-providers = router.register(r'providers', views.BasicProvidersViewSet)
 
 #activeforms = router.register(r'activeforms', views.ActiveFormsViewSet, basename='activeforms')
 #activephysicalexamforms = router.register(r'activephysicalexamforms', views.ActivePhysicalExamFormsViewSet, basename='active-physical-exam-forms')
@@ -81,7 +82,6 @@ providers = router.register(r'providers', views.BasicProvidersViewSet)
 #patient_medications.register(r'diagnoses', views.PatientMedicationViewSet, basename='diagnoses_medication', parents_query_lookups=['patient', 'medication_diagnoses'])
 #patient_medications.register(r'changes')
 
-clinicalrequests = router.register(r'clinicalrequests', views.PatientRequestsViewSet).register(r'updates', views.PatientRequestsUpdateViewSet, basename='clinical-request-updates', parents_query_lookups=['id', 'request_id'])
 
 # urlpatterns = [
 #     path('appointments/', views.AppointmentList.as_view()),

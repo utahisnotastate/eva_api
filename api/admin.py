@@ -9,6 +9,5 @@ admin.site.register(Appointment)
 admin.site.register(Insurance)
 admin.site.register(Guarantor)
 admin.site.register(PatientRequest)
-admin.site.register(PatientRequestUpdate)
 
 

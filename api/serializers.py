@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from phonenumber_field.serializerfields import PhoneNumberField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
-from .models import Appointment,  Patient, Provider, Insurance, Form,  Claim
+from .models import Appointment,  Patient, Provider, Insurance, Form,  Claim, Settings, Request
 
 
 # Patient Serializers
@@ -16,6 +16,10 @@ TODO Serializers:
 
 """
 
+class SettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Settings
+        fields = '__all__'
 
 class BasicProviderSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,10 +66,16 @@ class PatientSerializer(WritableNestedModelSerializer):
 class PatientInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
-        #fields = ('id', 'patient', 'insurance_name', 'tradingPartnerId', 'group_ID', 'bin_number', 'pcn', 'type', 'member_id','relationship_code', 'active', 'date_effective', 'date_terminated', 'copay_amount')
         fields = '__all__'
 
 class InsuranceSerializer(serializers.ModelSerializer):
+    details = serializers.JSONField()
     class Meta:
         model = Insurance
+        fields = '__all__'
+
+class RequestSerializer(serializers.ModelSerializer):
+    details = serializers.JSONField()
+    class Meta:
+        model = Request
         fields = '__all__'

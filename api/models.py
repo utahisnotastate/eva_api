@@ -58,35 +58,33 @@ class Appointment(models.Model):
     type = models.CharField(max_length=100, blank=True, null=True)
 
 
-"""
-const details = {
-    "familyhistory": [],
-    "socialhistory": [],
-    "medicalhistory": [],
-    "surgicalhistory": [],
-    "allergies": [],
-    "requests": [],
-    "diagnoses": [],
-    "insurances": [],
-    "medications": [],
-    "appointments": [],
-    "first_name" :"",
-    "last_name" :"",
-    "middle_name" :"",
-    "preffered_name" :"",
-    "address_one" :"",
-    "address_two" :"",
-    "city" :"",
-    "state" :"",
-    "zip" :"",
-    "date_of_birth" :"",
-    "contact_methods" :[],
-
-}
-"""
+def default_patient_details():
+    return {
+        "familyhistory": [],
+        "socialhistory": [],
+        "medicalhistory": [],
+        "surgicalhistory": [],
+        "allergies": [],
+        "requests": [],
+        "diagnoses": [],
+        "insurances": [],
+        "medications": [],
+        "appointments": [],
+        "first_name" :"",
+        "last_name" :"",
+        "middle_name" :"",
+        "preffered_name" :"",
+        "address_one" :"",
+        "address_two" :"",
+        "city" :"",
+        "state" :"",
+        "zip" :"",
+        "date_of_birth" :"",
+        "contact_methods" :[],
+    }
 
 class Patient(models.Model):
-    details = JSONField(null=True)
+    details = JSONField(default=default_patient_details)
     ssn = models.IntegerField(blank=False)
 
 

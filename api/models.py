@@ -50,6 +50,17 @@ class Provider(models.Model):
     last_name = models.CharField(max_length=50)
     npi = models.CharField(max_length=100)
 
+def default_appointment_details():
+    return {
+        "status": "scheduled",
+        "preappointment": "",
+        "complaints": "",
+        "provider": "",
+        "patient": "",
+        "details": "",
+        "status": "",
+        "forms": [],
+    }
 
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')

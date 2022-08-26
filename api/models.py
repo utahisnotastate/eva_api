@@ -3,10 +3,10 @@ from django.contrib.postgres.fields import JSONField
 # Create your models here.
 from django.db import models
 
-
 # Create your models here.
 
 # User Models
+
 
 class Claim(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='claims')
@@ -19,14 +19,13 @@ class Form(models.Model):
     details = JSONField(null=True)
 
 
-# Appointment Models
-
 def default_physical_exam_form():
     return {
         'title': 'Physical Exam',
         'description': 'Physical Exam',
         'fields': []
     }
+
 
 def default_review_of_systems_form():
     return {
@@ -35,10 +34,11 @@ def default_review_of_systems_form():
         'fields': []
     }
 
+
 class Settings(models.Model):
     name = models.CharField(max_length=500)
     details = JSONField(null=True)
-    #physical_exam_form = JSONField(null=True)
+    # physical_exam_form = JSONField(null=True)
     physical_exam_form = JSONField(default=default_physical_exam_form)
     review_of_systems_form = JSONField(default=default_review_of_systems_form)
 
@@ -50,23 +50,29 @@ class Provider(models.Model):
     last_name = models.CharField(max_length=50)
     npi = models.CharField(max_length=100)
 
+
 def default_appointment_details():
     return {
         "status": "scheduled",
-        "preappointment": "",
-        "complaints": "",
-        "provider": "",
-        "patient": "",
-        "details": "",
-        "status": "",
-        "forms": [],
-    }
+        "preappointmentnotes": "",
+        "complaints": [],
+        "assessments": [],
+        "diagnoses": [],
+        "followup": [],
+        "summary": "",
+        "physicalexam": [],
+        "reviewofsystems": []
+}
+
 
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')
-    details = JSONField(null=True)
+    details = JSONField(default=default_appointment_details)
     type = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=100, blank=True, null=True, default='scheduled')
+    start = models.DateTimeField(null=True)
+    end = models.DateTimeField(null=True)
 
 
 def default_patient_details():
@@ -81,7 +87,7 @@ def default_patient_details():
         "insurances": [],
         "medications": [],
         "appointments": [],
-        "first_name" :"",
+        "first_name":"",
         "last_name" :"",
         "middle_name" :"",
         "preffered_name" :"",
@@ -91,8 +97,9 @@ def default_patient_details():
         "state" :"",
         "zip" :"",
         "date_of_birth" :"",
-        "contact_methods" :[],
+        "contact_methods": [],
     }
+
 
 class Patient(models.Model):
     details = JSONField(default=default_patient_details)

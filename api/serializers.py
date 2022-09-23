@@ -60,6 +60,7 @@ class PatientSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Patient
         fields = '__all__'
+        label: 'Patient'
 
 
 
@@ -67,6 +68,7 @@ class PatientInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = '__all__'
+
 
 class InsuranceSerializer(serializers.ModelSerializer):
     details = serializers.JSONField()

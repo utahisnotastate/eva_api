@@ -13,10 +13,20 @@ class Claim(models.Model):
     appointment = models.ForeignKey('Appointment', on_delete=models.CASCADE, related_name='claims')
 
 
+def default_form_details():
+    return {
+        "fields": []
+    }
+
+
 class Form(models.Model):
     type = models.CharField(max_length=20, blank=True, null=True)
+    title = models.CharField(max_length=100, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
     active = models.BooleanField(default=False)
-    details = JSONField(null=True)
+    details = JSONField(null=True, default=default_form_details)
+    # location is where the form is used. eg. 'patient_profile'
+    location = models.CharField(max_length=100, blank=True, null=True)
 
 
 def default_physical_exam_form():
@@ -81,12 +91,11 @@ def default_patient_details():
         "socialhistory": [],
         "medicalhistory": [],
         "surgicalhistory": [],
+        "gender": "",
         "allergies": [],
-        "requests": [],
         "diagnoses": [],
         "insurances": [],
         "medications": [],
-        "appointments": [],
         "first_name":"",
         "last_name" :"",
         "middle_name" :"",
@@ -111,6 +120,17 @@ class Insurance(models.Model):
     details = JSONField(null=True)
 
 
+def default_request_details():
+    return {
+        "type": "",
+        "description": "",
+        "status": "",
+        "date": "",
+        "provider": "",
+        "updates": []
+    }
+
+
 class Request(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='requests')
-    details = JSONField(null=True)
+    details = JSONField(default=default_request_details)

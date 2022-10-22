@@ -73,8 +73,6 @@ def default_appointment_details():
         "physicalexam": [],
         "reviewofsystems": []
 }
-
-
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')

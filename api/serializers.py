@@ -37,30 +37,22 @@ class FormSerializer(WritableNestedModelSerializer):
         model = Form
         fields = '__all__'
 
+class PatientSerializer(WritableNestedModelSerializer):
+
+    details = serializers.JSONField()
+    class Meta:
+        model = Patient
+        fields = '__all__'
+        label: 'Patient'
+
 class AppointmentSerializer(WritableNestedModelSerializer):
-    patient_display_name = serializers.SerializerMethodField('get_patient_display_name')
-    provider_display_name = serializers.SerializerMethodField('get_provider_display_name')
+    patient = PatientSerializer(read_only=True)
     details = serializers.JSONField()
 
     class Meta:
         model = Appointment
         fields = '__all__'
 
-    def get_patient_display_name(self, appointment):
-        patient_display_name = appointment.patient.display_name
-        return patient_display_name
-
-    def get_provider_display_name(self, appointment):
-        provider_display_name = appointment.provider.display_name
-        return provider_display_name
-
-
-class PatientSerializer(WritableNestedModelSerializer):
-    details = serializers.JSONField()
-    class Meta:
-        model = Patient
-        fields = '__all__'
-        label: 'Patient'
 
 
 
@@ -76,8 +68,12 @@ class InsuranceSerializer(serializers.ModelSerializer):
         model = Insurance
         fields = '__all__'
 
+
+
+
+
 class RequestSerializer(serializers.ModelSerializer):
-    details = serializers.JSONField()
+    patient = PatientSerializer(read_only=True)   # get details.first_name and details.last_name from Patient Serializer
     class Meta:
         model = Request
         fields = '__all__'

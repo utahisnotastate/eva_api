@@ -22,7 +22,7 @@ def default_form_details():
 class Form(models.Model):
     type = models.CharField(max_length=20, blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(blank=True, null=True)
+    description = models.TextField(4blank=True, null=True)
     active = models.BooleanField(default=False)
     details = JSONField(null=True, default=default_form_details)
     # location is where the form is used. eg. 'patient_profile'

@@ -1,15 +1,15 @@
 from django.contrib import admin
-from .models import Patient, Provider, Appointment, Form, Request, Settings
+from django.contrib.postgres.forms import SimpleArrayField
+from django.forms import Textarea
+from .models import Provider, Appointment, Form, Request, Settings, Patient, Provider
 
-# Register your models here.
 
-admin.site.register(Patient)
-admin.site.register(Provider)
+
+# admin.site.register(Provider)
 admin.site.register(Appointment)
-admin.site.register(Form)
 admin.site.register(Request)
+admin.site.register(Form)
+admin.site.register(Provider)
 admin.site.register(Settings)
-
-
-
+admin.site.register(Patient)
 

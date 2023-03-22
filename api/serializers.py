@@ -1,19 +1,13 @@
 from rest_framework import serializers
-from phonenumber_field.serializerfields import PhoneNumberField
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 from .models import Appointment,  Patient, Provider, Insurance, Form,  Claim, Settings, Request
 
 
-# Patient Serializers
 """
 TODO Serializers:
 - Claim
 - Practice Settings
 - Practice Update
-
-"""
-"""
-
 """
 
 class SettingsSerializer(serializers.ModelSerializer):
@@ -31,36 +25,50 @@ class ProviderSerializer(serializers.ModelSerializer):
         model = Provider
         fields = '__all__'
 
-class FormSerializer(WritableNestedModelSerializer):
-    details = serializers.JSONField()
+class FormSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Form
         fields = '__all__'
 
 class PatientSerializer(WritableNestedModelSerializer):
-
-    details = serializers.JSONField()
+    fields = serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.CharField(),
+            help_text='A dictionary of properties for the field.',
+            label='Field Properties',
+        ),
+    )
     class Meta:
         model = Patient
         fields = '__all__'
         label: 'Patient'
 
-class AppointmentSerializer(WritableNestedModelSerializer):
-    patient = PatientSerializer(read_only=True)
-    details = serializers.JSONField()
-
+class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
-        fields = '__all__'
-
-
-
+        fields = [
+            'id',
+            'patient',
+            'provider',
+            'details',
+            'type',
+            'status',
+            'start',
+            'end',
+            'fields',
+            'complaints',
+            'review_of_systems',
+            'assessments',
+            'plans',
+            'physical_exam',
+            'summary',
+        ]
 
 class PatientInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = '__all__'
-
 
 class InsuranceSerializer(serializers.ModelSerializer):
     details = serializers.JSONField()
@@ -68,12 +76,14 @@ class InsuranceSerializer(serializers.ModelSerializer):
         model = Insurance
         fields = '__all__'
 
-
-
-
-
 class RequestSerializer(serializers.ModelSerializer):
-    patient = PatientSerializer(read_only=True)   # get details.first_name and details.last_name from Patient Serializer
-    class Meta:
+   updates =  serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.CharField(),
+            help_text='A dictionary of properties for the field.',
+            label='Field Properties',
+        ),
+    )
+   class Meta:
         model = Request
         fields = '__all__'

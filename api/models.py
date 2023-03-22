@@ -1,7 +1,8 @@
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField, ArrayField
 
 # Create your models here.
 from django.db import models
+
 
 # Create your models here.
 
@@ -15,64 +16,96 @@ class Claim(models.Model):
 
 def default_form_details():
     return {
+        "type": "",
+        "value": "",
+        "options": [],
+        "typeField": "",
+    }
+
+def default_registration_form():
+    return {
+        "zone": "registration",
+        "title": "Registration",
+        "fields": []
+    }
+
+def default_physical_exam_form():
+    return {
+        "zone": "physical_exam",
+        "title": "Physical Exam",
+        "fields": []
+    }
+
+def default_review_of_systems_form():
+    return {
+        "zone": "review_of_systems",
+        "title": "Review of Systems",
         "fields": []
     }
 
 
 class Form(models.Model):
-    type = models.CharField(max_length=20, blank=True, null=True)
+    zone = models.CharField(max_length=20, blank=True, null=True)
     title = models.CharField(max_length=100, blank=True, null=True)
-    description = models.TextField(4blank=True, null=True)
-    active = models.BooleanField(default=False)
-    details = JSONField(null=True, default=default_form_details)
-    # location is where the form is used. eg. 'patient_profile'
-    location = models.CharField(max_length=100, blank=True, null=True)
+    fields = ArrayField(
+        JSONField(
+            default=dict,
+            blank=True,
+        ),
+        default=list,
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        verbose_name_plural = "Forms"
+
+    @staticmethod
+    def default_forms():
+        return [
+            default_registration_form(),
+            default_physical_exam_form(),
+            default_review_of_systems_form(),
+        ]
+
+    @classmethod
+    def create_default_forms(cls):
+        for form in cls.default_forms():
+            cls.objects.create(**form)
 
 
-def default_physical_exam_form():
-    return {
-        'title': 'Physical Exam',
-        'description': 'Physical Exam',
-        'fields': []
-    }
 
-
-def default_review_of_systems_form():
-    return {
-        'title': 'Review of Systems',
-        'description': 'Review of Systems Form',
-        'fields': []
-    }
 
 
 class Settings(models.Model):
     name = models.CharField(max_length=500)
     details = JSONField(null=True)
-    # physical_exam_form = JSONField(null=True)
     physical_exam_form = JSONField(default=default_physical_exam_form)
     review_of_systems_form = JSONField(default=default_review_of_systems_form)
 
-
 class Provider(models.Model):
-    title_choices = [('Dr', 'Dr'), ('Nurse', 'Nurse')]
-    title = models.CharField(choices=title_choices, max_length=10)
+    title = models.CharField( max_length=50)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     npi = models.CharField(max_length=100)
 
-
 def default_appointment_details():
     return {
-        "status": "scheduled",
-        "preappointmentnotes": "",
+        "actual_start": "",
+        "actual_end": "",
+        "plans": [],
         "complaints": [],
         "assessments": [],
         "diagnoses": [],
         "followup": [],
         "summary": "",
         "physicalexam": [],
-        "reviewofsystems": []
-}
+        "reviewofsystems": [],
+    }
+
+
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')
@@ -81,42 +114,64 @@ class Appointment(models.Model):
     status = models.CharField(max_length=100, blank=True, null=True, default='scheduled')
     start = models.DateTimeField(null=True)
     end = models.DateTimeField(null=True)
+    fields = ArrayField(
+        JSONField(
+            default=dict,
+            blank=True,
+        ),
+        default=list,
+        blank=True,
+    )
+    complaints = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
+    review_of_systems = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
+    assessments = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
+    plans = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
+    physical_exam = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
+    summary = models.TextField(blank=True)
 
 
 def default_patient_details():
     return {
-        "familyhistory": [],
-        "socialhistory": [],
-        "medicalhistory": [],
-        "surgicalhistory": [],
-        "gender": "",
+        "demographics": {
+            "first_name": "",
+            "last_name": "",
+            "address": "",
+            "city": "",
+            "state": "",
+            "zip_code": "",
+            "phone": "",
+            "email": "",
+            "date_of_birth": "",
+        },
         "allergies": [],
-        "diagnoses": [],
-        "insurances": [],
+        "insurance": [],
         "medications": [],
-        "first_name":"",
-        "last_name" :"",
-        "middle_name" :"",
-        "preffered_name" :"",
-        "address_one" :"",
-        "address_two" :"",
-        "city" :"",
-        "state" :"",
-        "zip" :"",
-        "date_of_birth" :"",
-        "contact_methods": [],
+        "medical_history": [],
+        "surgical_history": [],
     }
-
 
 class Patient(models.Model):
     details = JSONField(default=default_patient_details)
     ssn = models.IntegerField(blank=False)
-
+    fields = ArrayField(
+        JSONField(
+            default=dict,
+            blank=True,
+        ),
+        default=list,
+        blank=True,
+    )
 
 class Insurance(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insurances')
-    details = JSONField(null=True)
-
+    fields = ArrayField(
+        JSONField(
+            default=dict,
+            blank=True,
+        ),
+        default=list,
+        blank=True,
+    )
 
 def default_request_details():
     return {
@@ -131,4 +186,13 @@ def default_request_details():
 
 class Request(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='requests')
-    details = JSONField(default=default_request_details)
+    type = models.CharField(max_length=100, blank=True, null=True)
+    status = models.CharField(max_length=100, blank=True, null=True)
+    updates = ArrayField(
+        JSONField(
+            default=dict,
+            blank=True,
+        ),
+        default=list,
+        blank=True,
+    )

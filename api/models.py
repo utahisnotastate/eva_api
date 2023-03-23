@@ -59,21 +59,6 @@ class Form(models.Model):
     def __str__(self):
         return self.title
 
-    class Meta:
-        verbose_name_plural = "Forms"
-
-    @staticmethod
-    def default_forms():
-        return [
-            default_registration_form(),
-            default_physical_exam_form(),
-            default_review_of_systems_form(),
-        ]
-
-    @classmethod
-    def create_default_forms(cls):
-        for form in cls.default_forms():
-            cls.objects.create(**form)
 
 
 
@@ -109,7 +94,7 @@ def default_appointment_details():
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')
-    details = JSONField(default=default_appointment_details)
+    # details = JSONField(default=default_appointment_details)
     type = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True, default='scheduled')
     start = models.DateTimeField(null=True)

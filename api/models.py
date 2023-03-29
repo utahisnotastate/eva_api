@@ -56,14 +56,6 @@ class Form(models.Model):
         blank=True,
     )
 
-    def __str__(self):
-        return self.title
-
-
-
-
-
-
 class Settings(models.Model):
     name = models.CharField(max_length=500)
     details = JSONField(null=True)

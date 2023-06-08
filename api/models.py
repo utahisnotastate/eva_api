@@ -1,12 +1,9 @@
-from django.contrib.postgres.fields import JSONField, ArrayField
-
 # Create your models here.
+# Create your models here.
+# User Models
+from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
 
-
-# Create your models here.
-
-# User Models
 
 
 class Claim(models.Model):
@@ -22,6 +19,7 @@ def default_form_details():
         "typeField": "",
     }
 
+
 def default_registration_form():
     return {
         "zone": "registration",
@@ -29,12 +27,14 @@ def default_registration_form():
         "fields": []
     }
 
+
 def default_physical_exam_form():
     return {
         "zone": "physical_exam",
         "title": "Physical Exam",
         "fields": []
     }
+
 
 def default_review_of_systems_form():
     return {
@@ -56,17 +56,20 @@ class Form(models.Model):
         blank=True,
     )
 
+
 class Settings(models.Model):
     name = models.CharField(max_length=500)
     details = JSONField(null=True)
     physical_exam_form = JSONField(default=default_physical_exam_form)
     review_of_systems_form = JSONField(default=default_review_of_systems_form)
 
+
 class Provider(models.Model):
-    title = models.CharField( max_length=50)
+    title = models.CharField(max_length=50)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     npi = models.CharField(max_length=100)
+
 
 def default_appointment_details():
     return {
@@ -127,6 +130,7 @@ def default_patient_details():
         "surgical_history": [],
     }
 
+
 class Patient(models.Model):
     details = JSONField(default=default_patient_details)
     ssn = models.IntegerField(blank=False)
@@ -139,6 +143,7 @@ class Patient(models.Model):
         blank=True,
     )
 
+
 class Insurance(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insurances')
     fields = ArrayField(
@@ -149,6 +154,7 @@ class Insurance(models.Model):
         default=list,
         blank=True,
     )
+
 
 def default_request_details():
     return {

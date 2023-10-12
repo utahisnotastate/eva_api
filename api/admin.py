@@ -4,8 +4,6 @@ from django.forms import Textarea
 from .models import Provider, Appointment, Form, Request, Settings, Patient, Provider
 
 
-
-# admin.site.register(Provider)
 admin.site.register(Appointment)
 admin.site.register(Request)
 admin.site.register(Form)

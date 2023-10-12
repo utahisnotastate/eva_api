@@ -1,9 +1,5 @@
-# Create your models here.
-# Create your models here.
-# User Models
 from django.contrib.postgres.fields import JSONField, ArrayField
 from django.db import models
-
 
 
 class Claim(models.Model):
@@ -57,12 +53,12 @@ class Form(models.Model):
     )
 
 
+
 class Settings(models.Model):
     name = models.CharField(max_length=500)
     details = JSONField(null=True)
     physical_exam_form = JSONField(default=default_physical_exam_form)
     review_of_systems_form = JSONField(default=default_review_of_systems_form)
-
 
 class Provider(models.Model):
     title = models.CharField(max_length=50)
@@ -86,10 +82,12 @@ def default_appointment_details():
     }
 
 
+class ArtificialAIAppointment(models.Model):
+    text = models.CharField(max_length=5000, blank=True, null=True)
+
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
     provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')
-    # details = JSONField(default=default_appointment_details)
     type = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True, default='scheduled')
     start = models.DateTimeField(null=True)
@@ -102,6 +100,7 @@ class Appointment(models.Model):
         default=list,
         blank=True,
     )
+    transcript = models.TextField(blank=True, null=True)
     complaints = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
     review_of_systems = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
     assessments = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
@@ -142,7 +141,6 @@ class Patient(models.Model):
         default=list,
         blank=True,
     )
-
 
 class Insurance(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='patient_insurances')

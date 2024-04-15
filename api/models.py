@@ -51,9 +51,6 @@ class Form(models.Model):
         default=list,
         blank=True,
     )
-
-
-
 class Settings(models.Model):
     name = models.CharField(max_length=500)
     details = JSONField(null=True)
@@ -87,7 +84,7 @@ class ArtificialAIAppointment(models.Model):
 
 class Appointment(models.Model):
     patient = models.ForeignKey('Patient', on_delete=models.CASCADE, related_name='appointments')
-    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='appointments')
+    provider = models.ForeignKey(Provider, on_delete=models.CASCADE, related_name='providers')
     type = models.CharField(max_length=100, blank=True, null=True)
     status = models.CharField(max_length=100, blank=True, null=True, default='scheduled')
     start = models.DateTimeField(null=True)
@@ -101,6 +98,9 @@ class Appointment(models.Model):
         blank=True,
     )
     transcript = models.TextField(blank=True, null=True)
+    cleaneduptranscript = models.TextField(blank=True, null=True)
+    claim = models.TextField(blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
     complaints = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
     review_of_systems = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)
     assessments = ArrayField(JSONField(default=dict, blank=True), default=list, blank=True)

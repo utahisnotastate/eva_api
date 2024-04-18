@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, viewsets
@@ -31,6 +32,41 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         if result.startswith("Error"):
             return None, result
         return result, None
+
+    @action(methods=['post'], detail=False)
+    def create_appointment(self, request):
+        patient_id = request.data.get('patientId')
+        if not patient_id:
+            return Response({"error": "Patient ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate that the patient exists
+        try:
+            patient = Patient.objects.get(pk=patient_id)
+        except Patient.DoesNotExist:
+            return Response({"error": "Patient not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Fetch default provider or handle if not existing
+        try:
+            default_provider = Provider.objects.first()  # Adjust if there's a specific provider to use
+            if not default_provider:
+                return Response({"error": "Default provider not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Provider.DoesNotExist:
+            return Response({"error": "Provider data is corrupt"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        try:
+            new_appointment = Appointment.objects.create(
+                patient=patient,
+                provider=default_provider,
+                type='regular',
+                status='scheduled',
+                start=timezone.now(),
+                end=None,  # Optional: Set if there's a default duration
+                # Other fields can be set to defaults or left blank
+            )
+            return Response({"message": "Appointment created successfully", "appointmentId": new_appointment.id},
+                            status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     @action(detail=True, methods=['post'])
     def clean_transcript(self, request, pk=None):

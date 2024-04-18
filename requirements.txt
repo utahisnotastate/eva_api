@@ -16,3 +16,6 @@ psycopg2==2.8.5
 python-stdnum==1.13
 pytz==2020.1
 sqlparse==0.3.1
+
+requests~=2.31.0
+python-dotenv~=0.21.1

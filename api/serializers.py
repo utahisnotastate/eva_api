@@ -9,10 +9,12 @@ TODO Serializers:
 - Practice Update
 """
 
+
 class SettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Settings
         fields = '__all__'
+
 
 class ArtificialAIAppointmentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -38,7 +40,16 @@ class FormSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = (
+        'id', 'type', 'status', 'start', 'end', 'transcript', 'cleaneduptranscript', 'note', 'claim', 'patient',
+        'provider')
+
+
 class PatientSerializer(WritableNestedModelSerializer):
+    appointments = AppointmentSerializer(many=True, read_only=True)
     fields = serializers.ListField(
         child=serializers.DictField(
             child=serializers.CharField(),
@@ -49,14 +60,9 @@ class PatientSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = Patient
-        fields = '__all__'
+        fields = ('id', 'details', 'ssn', 'fields', 'appointments')
         label: 'Patient'
 
-
-class AppointmentSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Appointment
-        fields = '__all__'
 
 class PatientInsuranceSerializer(serializers.ModelSerializer):
     class Meta:
